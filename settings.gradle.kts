@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "SoftPlayer"
 include(":app")
 include(":core")
+include(":player")
