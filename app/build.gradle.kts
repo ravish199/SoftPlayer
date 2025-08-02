@@ -54,6 +54,11 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.material)
     implementation(libs.androidx.activity)
+        implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1") // Or the latest version
+
+        implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.androidx.navigation.compose.android) // Check for the latest version
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -61,4 +66,19 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+        // For ExoPlayer core
+        implementation("androidx.media3:media3-exoplayer:1.3.1") // Check for the latest version
+
+        // For MediaSession integration (recommended for proper system integration)
+        implementation("androidx.media3:media3-session:1.3.1")
+// build.gradle or build.gradle.kts
+    implementation("androidx.navigation:navigation-compose:2.7.7") // Check latest version
+    implementation("androidx.core:core-splashscreen:1.0.1")
+        // For UI components if you need them (e.g., PlayerView, PlayerControlView)
+        // implementation "androidx.media3:media3-ui:1.3.1"
+    implementation("com.google.dagger:hilt-android:2.56.2")
+
+
+
 }

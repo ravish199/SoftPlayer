@@ -10,7 +10,10 @@ data class SongItem(
     val duration: Long, // in milliseconds
     val data: String, // File path
     val contentUri: Uri
-)
+) {
+
+}
+
 
 // Helper function to format duration (Long milliseconds to MM:SS String)
 fun formatDuration(millis: Long): String {

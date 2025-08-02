@@ -1,34 +1,186 @@
 package com.ravish.softplayer
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.compose.rememberNavController
+import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.theme.SoftPlayerTheme
+import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
+import dagger.hilt.EntryPoint
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private var mediaFileManager: MediaFileManager? = null
-    private var songList:List<SongItem>? = null
+    @Serializable
+    object PlayerMainScreen
+
+    @Serializable
+    object SongLoadingScreen
+
+    private var currentSongList: List<SongItem>? = null // Assuming you have a SongItem class
+    private var currentSongIdex = 0
+
+    @Inject
+    lateinit var viewModel: PlayerViewModel
+
+    private var isShuffle = false
+    private var playerService: PlayerService? = null
+    private var service by mutableStateOf(playerService)
+    private var serviceConnection: ServiceConnection? = null
+    var isLoading by mutableStateOf(true) // Simulate some initial loading
+
+    /*    private val navController: NavHostController
+            @Composable
+            get() = rememberNavController()*/
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        setContent {
+            SoftPlayerTheme {
+
+                if (isLoading) {
+                    Log.d("connectService:", "Loading")
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.music),
+                            contentDescription = ""
+                        )
+                        Text(
+                            "Loading app...",
+                            fontSize = 30.sp,
+                            color = Color.Yellow
+                        ) // This will likely be hidden by the splash screen
+                        // if setKeepOnScreenCondition is working
+                    }
+                    connectService()
+                } else {
+                    service?.let {
+                        navigateToMainScreen()
+                    }
+
+                }
+                /* Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                     innerPadding.toString()
+                     *//*    SongListScreen(songList!!, onSongClick = {
+
+                        })*//*
+                    //loadPlayerUI()
+                    initNavigation()
+                }*/
+            }
+        }
+
+        // Example: Trigger loading audio on a button click or when needed
+        /*  val loadAudioButton: android.widget.Button =
+              findViewById(R.id.loadAudioButton) // Assuming you have a button
+          loadAudioButton.setOnClickListener {
+              checkPermissionAndLoadAudio()
+          }*/
+    }
+
+
+    @Composable
+    fun navigateToMainScreen() {
+        Log.d("navigateToMainScreen:", "navigateToMainScreen")
+        val navigationController = rememberNavController()
+        AppNavGraph(service, navController = navigationController)
+        navigationController.navigate(Screen.PlayerMainScreen.route)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun connectService() {
+        Log.d("connectService:", "connectService")
+        serviceConnection = object : ServiceConnection {
+            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+                playerService = (p1 as PlayerService.ServiceBinder).getService()
+                playerService?.let {
+                    viewModel.initService(it)
+                    checkPermissionAndLoadAudio()
+                }
+                Log.d("connectService:", "onServiceConnected")
+                Log.d("connectService:", "$playerService")
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                playerService = null
+                Log.d("connectService:", "onServiceDisconnected")
+            }
+        }
+        with(Intent(this, PlayerService::class.java)) {
+            startForegroundService(this)
+            bindService(
+                this,
+                serviceConnection!!,
+                BIND_AUTO_CREATE
+            )
+        }
+
+    }
+
+    private fun disconnectService() {
+        serviceConnection = null
+        playerService = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+   /*     if (!playerService?.isPlaying()!!) {
+            disconnectService()
+        }*/
+    }
+
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                loadAudioFiles()
+             /*   view {
+                    Log.d("connectService:", "onLoaded")
+                    isLoading = false
+                }*/
             } else {
-               Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -44,7 +196,10 @@ class MainActivity : ComponentActivity() {
                 this,
                 permission
             ) == PackageManager.PERMISSION_GRANTED -> {
-                loadAudioFiles()
+           /*     viewModel?.loadAudioFiles() {
+                    Log.d("connectService:", "onLoaded")
+                    isLoading = false
+                }*/
             }
 
             shouldShowRequestPermissionRationale(permission) -> {
@@ -60,47 +215,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    private fun loadAudioFiles() {
-        // Implementation in the next step
-        // For now, let's just log or show a toast
-        android.widget.Toast.makeText(
-            this,
-            "Permission granted. Loading audio...",
-            android.widget.Toast.LENGTH_SHORT
-        ).show()
-        songList = mediaFileManager?.queryAudioFiles()
-        // Do something with audioList, e.g., display in a RecyclerView
-        songList?.forEach { audioFile ->
-            android.util.Log.d("AudioFiles", "Title: ${audioFile.title}, Path: ${audioFile.data}")
-        }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        mediaFileManager = MediaFileManager(this)
-        checkPermissionAndLoadAudio()
-        setContent {
-            SoftPlayerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    innerPadding.toString()
-                  SongListScreen(songList!!, onSongClick = {
-
-                  })
-                }
-            }
-        }
-
-        // Example: Trigger loading audio on a button click or when needed
-        /*  val loadAudioButton: android.widget.Button =
-              findViewById(R.id.loadAudioButton) // Assuming you have a button
-          loadAudioButton.setOnClickListener {
-              checkPermissionAndLoadAudio()
-          }*/
-    }
 }
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

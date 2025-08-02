@@ -1,4 +1,5 @@
 package com.ravish.softplayer
 
-class PlayerService {
+class AppConstant {
+
 }

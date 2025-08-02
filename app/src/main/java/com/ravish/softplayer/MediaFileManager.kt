@@ -6,9 +6,15 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MediaFileManager(private val context: Context) {
 
+    private var songList: List<SongItem>? = null
+    private var currentSong: SongItem? = null
 
     private fun loadAudioFiles() {
         // Implementation in the next step
@@ -79,4 +85,21 @@ class MediaFileManager(private val context: Context) {
         }
         return audioList
     }
+
+
+/*    fun loadAudioFiles(onLoaded: () -> Unit) {
+            songList = queryAudioFiles()
+            // Do something with audioList, e.g., display in a RecyclerView
+            songList?.forEach { audioFile ->
+                android.util.Log.d(
+                    "AudioFiles",
+                    "Title: ${audioFile.title}, Path: ${audioFile.data}"
+                )
+            }
+            currentSong = songList?.get(0)
+            withContext(Dispatchers.Main) {
+                onLoaded.invoke()
+            }
+        }*/
+
 }

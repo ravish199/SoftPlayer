@@ -1,42 +1,29 @@
+/*
 package com.ravish.softplayer
 
-import android.net.Uri
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FastForward
-import androidx.compose.material.icons.filled.FastRewind
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.RepeatOne
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.ravish.softplayer.data.RepeatMode
+
 // import com.yourpackage.R // For placeholder drawable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,7 +81,7 @@ fun PlayerScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                   painter = painterResource(R.drawable.ic_launcher_background),
+                    painter = painterResource(R.drawable.music),
                     contentDescription = "${song.title} album art",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -181,7 +168,7 @@ fun PlayerScreen(
 
                 PlayerIconButton(
                     onClick = onPreviousClick,
-                    icon = Icons.Default.SkipPrevious,
+                    icon = ImageVector.vectorResource(R.drawable.play_icon),
                     contentDescription = "Previous",
                     iconSize = 36.dp // Make main controls slightly larger
                 )
@@ -190,15 +177,15 @@ fun PlayerScreen(
 
                 PlayerIconButton(
                     onClick = onNextClick,
-                    icon = Icons.Default.SkipNext,
+                    icon = ImageVector.vectorResource(R.drawable.play_icon),
                     contentDescription = "Next",
                     iconSize = 36.dp
                 )
 
                 val repeatIcon = when (repeatMode) {
-                    RepeatMode.OFF -> Icons.Default.Repeat
-                    RepeatMode.ONE -> Icons.Default.RepeatOne
-                    RepeatMode.ALL -> Icons.Default.Repeat // Or a filled repeat icon if available
+                    RepeatMode.OFF -> ImageVector.vectorResource(R.drawable.repeat_icon)
+                    RepeatMode.ONE -> ImageVector.vectorResource(R.drawable.repeat_one_icon)
+                    RepeatMode.ALL -> ImageVector.vectorResource(R.drawable.repeat_icon) // Or a filled repeat icon if available
                 }
                 PlayerIconButton(
                     onClick = onRepeatModeChange,
@@ -243,7 +230,7 @@ fun PlayPauseButton(
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Icon(
-            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+            imageVector = if (isPlaying) ImageVector.vectorResource(R.drawable.pause_icon) else ImageVector.vectorResource(R.drawable.play_icon),
             contentDescription = if (isPlaying) "Pause" else "Play",
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(40.dp)
@@ -251,3 +238,4 @@ fun PlayPauseButton(
     }
 }
 
+*/
