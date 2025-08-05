@@ -1,3 +1,4 @@
+/*
 package com.ravish.softplayer
 
 import android.content.Context
@@ -180,3 +181,4 @@ class MyMusicPlayer(private val context: Context) {
 
     fun getMediaSession(): MediaSession? = mediaSession
 }
+*/

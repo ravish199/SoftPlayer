@@ -1,4 +1,4 @@
-package com.ravish.softplayer
+package com.ravish.softplayer.ui
 
 import android.content.ComponentName
 import android.content.Intent
@@ -13,30 +13,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.ravish.softplayer.AppNavGraph
+import com.ravish.softplayer.R
+import com.ravish.softplayer.Screen
+import com.ravish.softplayer.SongItem
 import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.theme.SoftPlayerTheme
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
-import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,14 +47,14 @@ class MainActivity : ComponentActivity() {
     private var currentSongList: List<SongItem>? = null // Assuming you have a SongItem class
     private var currentSongIdex = 0
 
-    @Inject
-    lateinit var viewModel: PlayerViewModel
+    private val viewModel: PlayerViewModel by viewModels()
+    private lateinit var navigationController: NavHostController
 
     private var isShuffle = false
     private var playerService: PlayerService? = null
-    private var service by mutableStateOf(playerService)
     private var serviceConnection: ServiceConnection? = null
-    var isLoading by mutableStateOf(true) // Simulate some initial loading
+    var isLoading = mutableStateOf(true) // Simulate some initial loading
+    var songList: List<SongItem>? = null
 
     /*    private val navController: NavHostController
             @Composable
@@ -68,34 +65,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        connectService()
+
 
         setContent {
             SoftPlayerTheme {
-
-                if (isLoading) {
-                    Log.d("connectService:", "Loading")
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.music),
-                            contentDescription = ""
-                        )
-                        Text(
-                            "Loading app...",
-                            fontSize = 30.sp,
-                            color = Color.Yellow
-                        ) // This will likely be hidden by the splash screen
-                        // if setKeepOnScreenCondition is working
-                    }
-                    connectService()
-                } else {
-                    service?.let {
-                        navigateToMainScreen()
-                    }
-
+                navigationController = rememberNavController()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    AppNavGraph(viewModel, navController = navigationController)
                 }
+                DrawLoadingScreen()
+
+                with(viewModel.songLoadProgressUiState.collectAsStateWithLifecycle()) {
+                    val progress = value.first / (value.second.toFloat())
+                    Log.d("Progress:", "Progress: ${progress}")
+                    Log.d("Progress:", "Count: ${value.first}, TOtal:${value.second}")
+                    setProgress(progress, value.first)
+                }
+
+                with(viewModel.backgroundState.collectAsStateWithLifecycle()) {
+                 // updateBackground(this.value)
+                }
+
                 /* Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                      innerPadding.toString()
                      *//*    SongListScreen(songList!!, onSongClick = {
@@ -115,12 +106,31 @@ class MainActivity : ComponentActivity() {
           }*/
     }
 
+    @Composable
+    fun DrawLoadingScreen() {
+        val loadingState by isLoading
+        if (loadingState) {
+            Log.d("connectService:", "Loading")
+            navigateToSongLoadingScreen()
+        } else {
+            Log.d("navigateToMainScreen:", "navigateToMainScreen")
+           /* with(viewModel.audioList.collectAsStateWithLifecycle()) {
+                navigateToMainScreen(this.value)
+            }*/
+            navigateToMainScreen()
+            //updateSongs(viewModel.audioList)
+        }
+    }
+
+    @Composable
+    fun navigateToSongLoadingScreen() {
+        Log.d("navigateToSongLoadingScreen:", "navigateToSongLoadingScreen")
+        navigationController.navigate(Screen.SongLoadingScreen.route)
+    }
 
     @Composable
     fun navigateToMainScreen() {
         Log.d("navigateToMainScreen:", "navigateToMainScreen")
-        val navigationController = rememberNavController()
-        AppNavGraph(service, navController = navigationController)
         navigationController.navigate(Screen.PlayerMainScreen.route)
     }
 
@@ -166,19 +176,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-   /*     if (!playerService?.isPlaying()!!) {
-            disconnectService()
-        }*/
+        viewModel.initService(null)
+        /*     if (!playerService?.isPlaying()!!) {
+                 disconnectService()
+             }*/
     }
 
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-             /*   view {
+                viewModel.loadAudioFiles {
                     Log.d("connectService:", "onLoaded")
-                    isLoading = false
-                }*/
+                    isLoading.value = false
+                }
             } else {
                 Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_SHORT).show()
             }
@@ -196,10 +207,10 @@ class MainActivity : ComponentActivity() {
                 this,
                 permission
             ) == PackageManager.PERMISSION_GRANTED -> {
-           /*     viewModel?.loadAudioFiles() {
+                viewModel.loadAudioFiles {
                     Log.d("connectService:", "onLoaded")
-                    isLoading = false
-                }*/
+                    isLoading.value = false
+                }
             }
 
             shouldShowRequestPermissionRationale(permission) -> {

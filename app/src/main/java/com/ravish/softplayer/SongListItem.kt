@@ -51,7 +51,7 @@ fun SongListItem(
         ) {
             // Album Art
             Image(
-                painter = painterResource(R.drawable.music),
+                painter = painterResource(R.drawable.frequncry_icon),
                 contentDescription = song.title + " album art",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

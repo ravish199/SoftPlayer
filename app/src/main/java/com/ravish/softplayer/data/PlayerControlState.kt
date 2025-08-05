@@ -1,5 +1,7 @@
 package com.ravish.softplayer.data
 
+import com.ravish.softplayer.data.model.RepeatMode
+
 sealed class PlayerControlState {
     data object Next : PlayerControlState()
     data object Previous : PlayerControlState()

@@ -5,31 +5,29 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.widget.Toast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import android.util.Log
+import kotlinx.coroutines.delay
 
 class MediaFileManager(private val context: Context) {
 
     private var songList: List<SongItem>? = null
     private var currentSong: SongItem? = null
+    var audioList:List<SongItem>? = null
 
-    private fun loadAudioFiles() {
-        // Implementation in the next step
+     suspend fun loadAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
+
+         // Implementation in the next step
         // For now, let's just log or show a toast
-        Toast.makeText(context, "Permission granted. Loading audio...", Toast.LENGTH_SHORT).show()
-        val audioList = queryAudioFiles()
+       queryAudioFiles(onLoaded, loadProgress)/*
         // Do something with audioList, e.g., display in a RecyclerView
         audioList.forEach { audioFile ->
             android.util.Log.d("AudioFiles", "Title: ${audioFile.title}, Path: ${audioFile.data}")
-        }
+        }*/
     }
 
 
     // Add this function to your Activity or a Repository class
-    fun queryAudioFiles(): List<SongItem> {
+   private suspend fun queryAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
         val audioList = mutableListOf<SongItem>()
 
         val projection = arrayOf(
@@ -67,6 +65,8 @@ class MediaFileManager(private val context: Context) {
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
+            var count = 0
+            val total = cursor.count
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn)
@@ -81,9 +81,12 @@ class MediaFileManager(private val context: Context) {
                 )
 
                 audioList.add(SongItem(id, title, artist, album, duration, data, contentUri))
+                Log.d("LoadSongs:", "Loading: count:${count}, total:${total}")
+                delay(5L)
+                loadProgress.invoke(++count, total)
             }
+            onLoaded.invoke(audioList)
         }
-        return audioList
     }
 
 

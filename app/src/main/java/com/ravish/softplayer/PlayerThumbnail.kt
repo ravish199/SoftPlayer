@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 fun PlayerThumbnail(modifier: Modifier = Modifier) {
     // In a real app, you'd load an actual image
     Image(
-        painter = painterResource(R.drawable.music),
+        painter = painterResource(R.drawable.frequncry_icon),
         contentDescription = "Player Thumbnail",
         contentScale = ContentScale.Crop,
         modifier = modifier

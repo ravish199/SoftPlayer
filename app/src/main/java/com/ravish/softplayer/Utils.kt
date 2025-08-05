@@ -1,10 +1,23 @@
 package com.ravish.softplayer
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.util.Size
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import java.lang.reflect.InvocationTargetException
 
-class Utils {
-    companion object {
-       val ioScope = CoroutineScope(Dispatchers.IO)
+object Utils {
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun getImage(context: Context, uri: Uri): Bitmap {
+        return  try{
+            context.contentResolver.loadThumbnail(uri, Size(500, 500), null)
+        }catch (e: Exception) {
+            BitmapFactory.decodeResource(context.resources, R.drawable.music_symbols)
+        }
     }
 }

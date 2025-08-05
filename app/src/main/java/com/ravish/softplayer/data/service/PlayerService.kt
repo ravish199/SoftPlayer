@@ -2,57 +2,73 @@ package com.ravish.softplayer.data.service
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.ServiceCompat
 import com.ravish.softplayer.MediaFileManager
-import com.ravish.softplayer.MyMusicPlayer
+import com.ravish.softplayer.PlayerNotificationManager
+import com.ravish.softplayer.SongItem
 import com.ravish.softplayer.data.PlayerControlState
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class PlayerService : Service() {
 
-    var musicPlayer: MyMusicPlayer? = null
+    //var musicPlayer: MyMusicPlayer? = null
     private var mediaFileManager: MediaFileManager? = null
     val _playerState = MutableStateFlow<PlayerControlState?>(null)
 
     override fun onCreate() {
         super.onCreate()
         Log.d("PlayerService:", "onCreate")
-        musicPlayer = MyMusicPlayer(applicationContext)
-        musicPlayer?.initializePlayer()
+    //    musicPlayer = MyMusicPlayer(applicationContext)
+     //   musicPlayer?.initializePlayer()
         mediaFileManager = MediaFileManager(this)
     }
 
+    suspend fun loadAudioFiles(onLoaded:suspend (List<SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
+        Log.d("PlayerService:", "loadAudioFiles")
+            mediaFileManager?.loadAudioFiles(onLoaded, loadProgress)
+
+    }
+
+    fun getSongList() = mediaFileManager?.audioList
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("PlayerService:", "onStartCommand")
+        ServiceCompat.startForeground(this, 1, PlayerNotificationManager.getNotification(this),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         return START_STICKY
 
     }
 
 
     fun play() {
-        musicPlayer?.play()
+       // musicPlayer?.play()
     }
 
     fun pause() {
-        musicPlayer?.pause()
+        //musicPlayer?.pause()
     }
 
     fun stop() {
-        musicPlayer?.stop()
+        //musicPlayer?.stop()
     }
 
     fun next() {
-        musicPlayer?.next()
+        //musicPlayer?.next()
     }
 
     fun previous() {
-        musicPlayer?.previous()
+        //musicPlayer?.previous()
     }
 
     fun seekTo(positionMs: Long) {
-        musicPlayer?.seekTo(positionMs)
+        //musicPlayer?.seekTo(positionMs)
     }
 
 
@@ -68,8 +84,8 @@ class PlayerService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        musicPlayer?.releasePlayer()
-        musicPlayer = null
+       // musicPlayer?.releasePlayer()
+       // musicPlayer = null
         Log.d("PlayerService:", "onDestroy")
     }
 
