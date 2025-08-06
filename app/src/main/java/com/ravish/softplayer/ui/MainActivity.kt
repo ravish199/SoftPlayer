@@ -28,7 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ravish.softplayer.AppNavGraph
 import com.ravish.softplayer.R
 import com.ravish.softplayer.Screen
-import com.ravish.softplayer.SongItem
+import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.theme.SoftPlayerTheme
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
     @Serializable
     object SongLoadingScreen
 
-    private var currentSongList: List<SongItem>? = null // Assuming you have a SongItem class
+    private var currentSongList: List<com.ravish.player.data.model.SongItem>? = null // Assuming you have a SongItem class
     private var currentSongIdex = 0
 
     private val viewModel: PlayerViewModel by viewModels()
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
     private var playerService: PlayerService? = null
     private var serviceConnection: ServiceConnection? = null
     var isLoading = mutableStateOf(true) // Simulate some initial loading
-    var songList: List<SongItem>? = null
+    var songList: List<com.ravish.player.data.model.SongItem>? = null
 
     /*    private val navController: NavHostController
             @Composable

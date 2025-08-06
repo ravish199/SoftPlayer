@@ -57,7 +57,8 @@ dependencies {
         implementation(libs.androidx.constraintlayout.compose) // Or the latest version
 
         implementation(libs.coil.compose)
-    implementation(libs.androidx.navigation.compose.android) // Check for the latest version
+    implementation(libs.androidx.navigation.compose.android)
+    implementation(project(":player")) // Check for the latest version
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -2,10 +2,10 @@ package com.ravish.softplayer.ui.viewmodel
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.media3.common.MediaItem
-import com.ravish.softplayer.SongItem
+import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.data.PlayerControlUIState
 import com.ravish.softplayer.data.service.PlayerService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(): ViewModel() {
@@ -24,17 +23,62 @@ class PlayerViewModel @Inject constructor(): ViewModel() {
     private var playerService: PlayerService? = null
     private val _songLoadProgressUiState = MutableStateFlow(Pair(0, 0))
     val songLoadProgressUiState: StateFlow<Pair<Int, Int>> = _songLoadProgressUiState
-    private var _audioList = MutableStateFlow(emptyList<SongItem>())
-    val audioList: StateFlow<List<SongItem>> = _audioList
+    private var _audioList = MutableStateFlow(emptyList<com.ravish.player.data.model.SongItem>())
+    val audioList: StateFlow<List<com.ravish.player.data.model.SongItem>> = _audioList
 
     private val _backgroundState = MutableStateFlow<Bitmap?>(null)
     val backgroundState: StateFlow<Bitmap?> = _backgroundState
+
+    var songSeekValue = 0f
 
     private val _playerControlUiState = MutableStateFlow(PlayerControlUIState(null))
 
     init {
 
     }
+
+    fun getTotalDuration() = playerService?.getTotalDuration()
+    fun currentPosition() = playerService?.currentPosition()
+
+    fun play() {
+            playerService?.play()
+    }
+
+     fun playSingleSong(songUri: Uri) {
+         CoroutineScope(Dispatchers.Main).launch {
+             playerService?.playSingleSong(songUri)
+         }
+    }
+
+    fun pause() {
+        CoroutineScope(Dispatchers.Main).launch {
+            playerService?.pause()
+        }
+    }
+
+    fun stop() {
+            playerService?.stop()
+    }
+
+    fun next() {
+        CoroutineScope(Dispatchers.IO).launch {
+            playerService?.next()
+        }
+    }
+
+    fun previous() {
+        CoroutineScope(Dispatchers.IO).launch {
+            playerService?.previous()
+        }
+    }
+
+     fun seekTo(positionMs: Long) {
+            playerService?.seekTo(positionMs)
+
+    }
+
+
+
 
     fun updateBackground(bitmap: Bitmap?) {
         _backgroundState.value = bitmap
@@ -50,7 +94,6 @@ class PlayerViewModel @Inject constructor(): ViewModel() {
                 _audioList.value = it
                 Log.d("PlayerViewModel:", "songlist:${audioList.value.size}")
                 Log.d("PlayerViewModel:", "songlist.hashcode:${audioList.hashCode()}")
-                kotlinx.coroutines.delay(2000L)
                 onLoaded.invoke()
             }) { count, total ->
                 _songLoadProgressUiState.value = Pair(count, total)

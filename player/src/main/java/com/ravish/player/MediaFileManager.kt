@@ -1,4 +1,4 @@
-package com.ravish.softplayer
+package com.ravish.player
 
 import android.content.ContentUris
 import android.content.Context
@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import com.ravish.player.data.model.SongItem
 import kotlinx.coroutines.delay
 
 class MediaFileManager(private val context: Context) {
@@ -82,7 +83,7 @@ class MediaFileManager(private val context: Context) {
 
                 audioList.add(SongItem(id, title, artist, album, duration, data, contentUri))
                 Log.d("LoadSongs:", "Loading: count:${count}, total:${total}")
-                delay(5L)
+                delay(1L)
                 loadProgress.invoke(++count, total)
             }
             onLoaded.invoke(audioList)

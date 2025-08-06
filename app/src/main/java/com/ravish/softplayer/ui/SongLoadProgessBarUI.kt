@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,42 +26,43 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ravish.softplayer.ui.theme.GlowColor
+import com.ravish.softplayer.ui.theme.HighLightColor
+
 import kotlinx.coroutines.flow.StateFlow
 
 
 var progressValue= mutableFloatStateOf(0f)
 var sCount = 0
 @Composable
-fun DrawSongLoadProgress(modifier: Modifier) {
+fun DrawSongLoadProgress(modifier: Modifier, strokeWidth: Dp = 10.dp) {
     val progressState by progressValue
-    val progressText = "${(progressState * 100).toInt()}%"
+    val progressText = "Loading media ${(progressState * 100).toInt()}%"
     Box(modifier = modifier) {
         Text(modifier = Modifier.fillMaxWidth()
         .align(alignment = Alignment.Center)
-            .padding(bottom = 20.dp, start = 50.dp, end = 50.dp),
+            .padding(bottom = 20.dp, start = 50.dp, end = 50.dp, top = 60.dp),
             text = progressText,
             textAlign = TextAlign.Center,
             maxLines = 1,
             softWrap = true,
             style = TextStyle(
-            fontSize = 30.sp,
+            fontSize = 20.sp,
 
-            color = Color.White,
+            color = Color.Cyan,
                 shadow = Shadow(
-                    color = Color.Black,
+                    color = Color.Red,
                     blurRadius = 20f
                 )
         ))
-        CircularProgressIndicator(
+        LinearProgressIndicator(
             progress = { progressState },
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f).align(alignment = Alignment.Center),
-            color = GlowColor,
-            strokeWidth = 20.dp,
-            trackColor = Color.White,
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.02f).align(alignment = Alignment.Center),
+            color = Color.Cyan,
+            trackColor = Color.Transparent,
             strokeCap = StrokeCap.Round,
         )
     }

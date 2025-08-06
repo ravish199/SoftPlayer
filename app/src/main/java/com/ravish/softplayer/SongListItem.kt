@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SongListItem(
-    song: SongItem,
-    onSongClick: (SongItem) -> Unit,
+    song: com.ravish.player.data.model.SongItem,
+    onSongClick: (com.ravish.player.data.model.SongItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -87,7 +87,7 @@ fun SongListItem(
 
             // Duration
             Text(
-                text = formatDuration(song.duration),
+                text = com.ravish.player.data.model.formatDuration(song.duration),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )

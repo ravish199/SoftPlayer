@@ -1,6 +1,5 @@
 package com.ravish.softplayer.ui
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -10,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,13 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
-import com.ravish.softplayer.SongItem
-import com.ravish.softplayer.ui.theme.AppBackgroundColor
+import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 val backgroundImage = mutableStateOf<Bitmap?>(null)
@@ -63,10 +59,10 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
             DrawSongTileUI(viewModel, modifier = Modifier.weight(1.2f).padding(0.dp))
 
-            DrawPayerView(modifier = modifier.weight(2.5f))
+            DrawPayerView(viewModel, modifier = modifier.weight(2.5f))
 
 
-            DrawPlayerControl(
+            DrawPlayerControl(viewModel,
                 modifier = modifier
                     .fillMaxWidth()
                     .weight(1.5f)
@@ -76,7 +72,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
     }
 }
 
-fun updateSongs(songList: List<SongItem>) {
+fun updateSongs(songList: List<com.ravish.player.data.model.SongItem>) {
     updateSongList(songList)
 }
 

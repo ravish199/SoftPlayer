@@ -1,4 +1,4 @@
-package com.ravish.softplayer
+package com.ravish.player.data.model
 
 import android.net.Uri
 

@@ -22,6 +22,7 @@ volley = "1.2.1"
 runner = "1.6.1"
 activity = "1.8.0"
 navigationComposeAndroid = "2.9.2"
+media3CommonKtx = "1.8.0"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -52,6 +53,7 @@ volley = { group = "com.android.volley", name = "volley", version.ref = "volley"
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-navigation-compose-android = { group = "androidx.navigation", name = "navigation-compose-android", version.ref = "navigationComposeAndroid" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

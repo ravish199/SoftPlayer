@@ -1,5 +1,6 @@
 package com.ravish.softplayer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -20,4 +21,14 @@ object Utils {
             BitmapFactory.decodeResource(context.resources, R.drawable.music_symbols)
         }
     }
+
+    @SuppressLint("DefaultLocale")
+    fun formatMillisToMinuteSecond(milliseconds: Long): String {
+        val totalSeconds = milliseconds / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
+
+
 }

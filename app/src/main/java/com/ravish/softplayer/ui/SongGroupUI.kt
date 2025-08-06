@@ -22,13 +22,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ravish.softplayer.R
 import com.ravish.softplayer.data.model.EquilizerSelection
 import com.ravish.softplayer.data.model.MoodSelection
+import com.ravish.softplayer.ui.theme.ButtonBackgroundColor
 import com.ravish.softplayer.ui.theme.SongsTileBackgroundColor
 
 @Composable
 fun DrawSongGroupUI(modifier: Modifier) {
     var moodType by remember { mutableStateOf(MoodSelection.HAPPY) }
     Row(
-        modifier = modifier.background(Color.Transparent),
+        modifier = modifier.background(ButtonBackgroundColor),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
