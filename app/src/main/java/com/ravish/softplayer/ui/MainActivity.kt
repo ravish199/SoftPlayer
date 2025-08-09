@@ -25,10 +25,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.ravish.softplayer.AppNavGraph
+import com.ravish.softplayer.ui.navigation.AppNavGraph
 import com.ravish.softplayer.R
-import com.ravish.softplayer.Screen
-import com.ravish.player.data.model.SongItem
+import com.ravish.softplayer.ui.navigation.Screen
 import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.theme.SoftPlayerTheme
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
@@ -131,7 +130,11 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun navigateToMainScreen() {
         Log.d("navigateToMainScreen:", "navigateToMainScreen")
-        navigationController.navigate(Screen.PlayerMainScreen.route)
+        navigationController.navigate(Screen.PlayerMainScreen.route) {
+            popUpTo(Screen.SongLoadingScreen.route) {
+                inclusive = true
+            }
+        }
     }
 
     override fun onStop() {

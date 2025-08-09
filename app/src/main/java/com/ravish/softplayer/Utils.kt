@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import java.lang.reflect.InvocationTargetException
 
 object Utils {
+
     @RequiresApi(Build.VERSION_CODES.Q)
     fun getImage(context: Context, uri: Uri): Bitmap {
         return  try{
@@ -27,7 +28,7 @@ object Utils {
         val totalSeconds = milliseconds / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
+        return String.format(if(minutes < 10) AppConstant.TIME_FORMAT_1 else AppConstant.TIMEFORMAT_2, minutes, seconds)
     }
 
 

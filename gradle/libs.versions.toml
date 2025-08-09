@@ -23,6 +23,7 @@ runner = "1.6.1"
 activity = "1.8.0"
 navigationComposeAndroid = "2.9.2"
 media3CommonKtx = "1.8.0"
+foundationAndroid = "1.7.2"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -54,6 +55,7 @@ androidx-runner = { group = "androidx.test", name = "runner", version.ref = "run
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-navigation-compose-android = { group = "androidx.navigation", name = "navigation-compose-android", version.ref = "navigationComposeAndroid" }
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

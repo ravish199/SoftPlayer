@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
 import com.ravish.player.data.model.SongItem
@@ -33,16 +34,20 @@ val backgroundImage = mutableStateOf<Bitmap?>(null)
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun DrawPlayerUI(viewModel: PlayerViewModel) {
+
+
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight().blur(30.dp),
+                .fillMaxHeight()
+                .blur(30.dp),
              bitmap = (backgroundImage.value?: BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.app_background)).asImageBitmap(),
             contentDescription = "Song Name",
             contentScale = ContentScale.FillBounds,
             alpha = 1f
         )
+        OverLayView(modifier = Modifier.fillMaxSize())
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -53,11 +58,15 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             val modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
-            DrawEquilizerUI(modifier = modifier.weight(1.5f).padding(top = 50.dp))
+          //  DrawEquilizerUI(modifier = modifier.weight(1.5f).padding(top = 50.dp))
 
-            DrawSongGroupUI(modifier = modifier.weight(1f))
+          //  DrawSongGroupUI(modifier = modifier.weight(1f))
 
-            DrawSongTileUI(viewModel, modifier = Modifier.weight(1.2f).padding(0.dp))
+            DrawSongHeader(modifier = modifier.weight(1f), viewModel.categoryName, viewModel.totalSongs)
+
+            DrawSongTileUI(viewModel,
+                modifier = Modifier.weight(2.5f).
+                padding(0.dp))
 
             DrawPayerView(viewModel, modifier = modifier.weight(2.5f))
 
@@ -66,7 +75,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
                 modifier = modifier
                     .fillMaxWidth()
                     .weight(1.5f)
-                    .padding(bottom = 50.dp),
+                    .padding(bottom = 100.dp),
             )
         }
     }

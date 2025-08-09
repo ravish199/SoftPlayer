@@ -86,6 +86,8 @@ class PlayerService : Service() {
         musicPlayer?.seekTo(positionMs)
     }
 
+    fun getPlayEndedState() = musicPlayer?.onPlayEndedUpdater
+
 
     inner class ServiceBinder : Binder() {
         fun getService(): PlayerService {

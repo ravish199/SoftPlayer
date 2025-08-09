@@ -26,11 +26,14 @@ class MyMusicPlayer(private val context: Context) {
     var isPlayingUpdater = MutableStateFlow<Boolean>(false)
     private var _currentPositionUpdater = MutableStateFlow(0L)
    private var _totalDurationUpdater = MutableStateFlow(0L)
-
+private var isPlaying = false
     var currentPositionUpdater =_currentPositionUpdater
     var totalDurationUpdater = _totalDurationUpdater
     var currentPositionUpdateJob: Job? = null
     private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    private var _onPlayEndedUpdater = MutableStateFlow(false)
+    var onPlayEndedUpdater = _onPlayEndedUpdater
 
 
     // Call this to initialize the player
@@ -46,6 +49,7 @@ class MyMusicPlayer(private val context: Context) {
                             this@MyMusicPlayer.isPlayingUpdater.emit(isPlaying)
                         }
                         if (isPlaying) {
+
                             startPositionUpdates()
                             android.util.Log.d("MyMusicPlayer", "Playback started.")
                         } else {
@@ -62,15 +66,21 @@ class MyMusicPlayer(private val context: Context) {
                                 "State: Buffering"
                             )
 
-                            Player.STATE_READY -> android.util.Log.d(
-                                "MyMusicPlayer",
-                                "State: Ready"
-                            )
+                            Player.STATE_READY -> {
+                                _onPlayEndedUpdater.value = false
+                                android.util.Log.d(
+                                    "MyMusicPlayer",
+                                    "State: Ready"
+                                )
+                            }
 
-                            Player.STATE_ENDED -> android.util.Log.d(
-                                "MyMusicPlayer",
-                                "State: Ended"
-                            )
+                            Player.STATE_ENDED ->  {
+                                _onPlayEndedUpdater.value = true
+                                android.util.Log.d(
+                                    "MyMusicPlayer",
+                                    "State: Ended"
+                                )
+                            }
                         }
                     }
 
@@ -95,8 +105,12 @@ class MyMusicPlayer(private val context: Context) {
                         super.onTimelineChanged(timeline, reason)
                         CoroutineScope(Dispatchers.Main).launch {
                             val window = Timeline.Window()
-                            val timeLine = timeline.getWindow(0, window)
-                            _totalDurationUpdater.value = timeLine.durationMs
+                            try {
+                                val timeLine = timeline.getWindow(0, window)
+                                _totalDurationUpdater.value = timeLine.durationMs
+                            }catch (e:ArrayIndexOutOfBoundsException) {
+                                e.printStackTrace()
+                            }
                         }
                     }
 
@@ -169,8 +183,10 @@ class MyMusicPlayer(private val context: Context) {
 
     fun stop() {
         playerScope.launch {
-            exoPlayer?.stop()
-            exoPlayer?.clearMediaItems() // Optionally clear the playlist
+            if(isPlayingUpdater.value) {
+                exoPlayer?.stop()
+                exoPlayer?.clearMediaItems()
+            }
         }
     }
 

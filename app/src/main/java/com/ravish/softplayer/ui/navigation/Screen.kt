@@ -1,4 +1,4 @@
-package com.ravish.softplayer
+package com.ravish.softplayer.ui.navigation
 
 // AppDestinations.kt (can be a separate file or within your navigation setup file)
 sealed class Screen(val route: String) {

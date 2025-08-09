@@ -30,6 +30,8 @@ class PlayerViewModel @Inject constructor(): ViewModel() {
     val backgroundState: StateFlow<Bitmap?> = _backgroundState
 
     var songSeekValue = 0f
+    var categoryName = "All Songs"
+    var totalSongs = 0
 
     private val _playerControlUiState = MutableStateFlow(PlayerControlUIState(null))
 
@@ -77,6 +79,8 @@ class PlayerViewModel @Inject constructor(): ViewModel() {
 
     }
 
+    fun getPlayEndedState() = playerService?.getPlayEndedState()
+
 
 
 
@@ -97,6 +101,7 @@ class PlayerViewModel @Inject constructor(): ViewModel() {
                 onLoaded.invoke()
             }) { count, total ->
                 _songLoadProgressUiState.value = Pair(count, total)
+                totalSongs = total
             }
             /*      playerService?.loadAudioFiles(onLoaded) { count, total ->
                       _songLoadProgressUiState.value = Pair(count, total)

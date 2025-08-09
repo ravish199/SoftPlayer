@@ -1,17 +1,13 @@
-package com.ravish.softplayer// AppNavigation.kt (or within your MainActivity or a dedicated navigation file)
+package com.ravish.softplayer.ui.navigation// AppNavigation.kt (or within your MainActivity or a dedicated navigation file)
 
-import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.PlayerMainScreen
 import com.ravish.softplayer.ui.SongLoadingScreen
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
@@ -37,7 +33,7 @@ fun AppNavGraph(viewModel: PlayerViewModel,
         modifier = modifier
     ) {
         // Song loading Screen
-        composable(route = Screen.PlayerMainScreen.route) {
+        composable(route = Screen.SongLoadingScreen.route) {
             SongLoadingScreen()
         }
 
@@ -46,10 +42,6 @@ fun AppNavGraph(viewModel: PlayerViewModel,
             PlayerMainScreen(viewModel)
         }
 
-        // Profile Screen
-        composable(route = Screen.SongLoadingScreen.route) {
-            SongLoadingScreen()
-        }
     }
 }
 
