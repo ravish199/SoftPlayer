@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SoftPlayer</string>
+    <string name="permission_not_granted">Permission Not Granted</string>
 </resources>
