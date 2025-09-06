@@ -33,9 +33,26 @@ fun AddIcon(modifier: Modifier, icon: Int, selected: Boolean = false) {
             Icon(
                 modifier = modifier.size(100.dp).padding(10.dp),
                 contentDescription = "Previous",
-                painter = painterResource(id = icon)
+                painter = painterResource(id = icon),
+                tint = if (selected) HighLightColor else NormalStateColor
             )
         }
+
+}
+
+@Composable
+fun AddIcon1(modifier: Modifier, icon: Int) {
+    IconButton(
+        modifier = modifier,
+        onClick = { /*TODO*/ },
+    ) {
+        Icon(
+            modifier = modifier.size(100.dp).padding(10.dp),
+            contentDescription = "Previous",
+            painter = painterResource(id = icon),
+
+        )
+    }
 
 }
 

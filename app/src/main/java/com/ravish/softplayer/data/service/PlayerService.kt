@@ -11,37 +11,38 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ServiceCompat
 import com.ravish.player.MediaFileManager
-import com.ravish.player.MyMusicPlayer
+import com.ravish.player.MusicPlayer
 import com.ravish.softplayer.PlayerNotificationManager
 
 import com.ravish.softplayer.data.PlayerControlState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class PlayerService : Service() {
 
-    var musicPlayer: MyMusicPlayer? = null
-    private var mediaFileManager: MediaFileManager? = null
+    var musicPlayer: MusicPlayer? = null
+     var mediaFileManager: MediaFileManager? = null
     val _playerState = MutableStateFlow<PlayerControlState?>(null)
 
     override fun onCreate() {
         super.onCreate()
         Log.d("PlayerService:", "onCreate")
         CoroutineScope(Dispatchers.IO).launch {
-            musicPlayer = MyMusicPlayer(applicationContext)
+            musicPlayer = MusicPlayer(applicationContext)
             musicPlayer?.initializePlayer()
         }
 
         mediaFileManager = MediaFileManager(this)
     }
 
-    suspend fun loadAudioFiles(onLoaded:suspend (List<com.ravish.player.data.model.SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
+   /* suspend fun loadAudioFiles(onLoaded:suspend (List<com.ravish.player.data.model.SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
         Log.d("PlayerService:", "loadAudioFiles")
             mediaFileManager?.loadAudioFiles(onLoaded, loadProgress)
 
-    }
+    }*/
 
     fun getSongList() = mediaFileManager?.audioList
 
@@ -55,16 +56,24 @@ class PlayerService : Service() {
     }
 
 
-     fun play() {
+ /*    fun play() {
         musicPlayer?.play()
-    }
+    }*/
 
-    suspend fun playSingleSong(songUri: Uri) {
+/*    suspend fun playSingleSong(songUri: Uri) {
         musicPlayer?.playSingleSong(songUri)
-    }
+    }*/
 
-    fun getTotalDuration() = musicPlayer?.totalDurationUpdater
-    fun currentPosition() = musicPlayer?.currentPositionUpdater
+/*    fun getTotalDuration() = musicPlayer?.totalDurationUpdater
+    fun currentPosition(): StateFlow<Long>{
+       val a  = musicPlayer?.currentPositionUpdater!!
+        Log.d("PlayerService","currentPosition:${a.value/1000}")
+        return a
+    }*/
+
+  //  fun isPlaying() = musicPlayer?.isPlayingUpdater
+
+/*
 
     suspend fun pause() {
         musicPlayer?.pause()
@@ -85,8 +94,13 @@ class PlayerService : Service() {
      fun seekTo(positionMs: Long) {
         musicPlayer?.seekTo(positionMs)
     }
+*/
 
-    fun getPlayEndedState() = musicPlayer?.onPlayEndedUpdater
+   // fun getPlayEndedState() = musicPlayer?.onPlayEndedUpdater
+
+  /*  fun setPlaylist(allSongUris:List<Uri>, preparePlayer = true) {
+        musicPlayer?.setPlaylist(allSongUris, preparePlayer)
+    }*/
 
 
     inner class ServiceBinder : Binder() {
@@ -101,8 +115,8 @@ class PlayerService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-       // musicPlayer?.releasePlayer()
-       // musicPlayer = null
+        musicPlayer?.releasePlayer()
+        musicPlayer = null
         Log.d("PlayerService:", "onDestroy")
     }
 

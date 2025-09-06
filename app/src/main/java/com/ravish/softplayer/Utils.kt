@@ -10,6 +10,7 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.lang.reflect.InvocationTargetException
 
 object Utils {
@@ -24,12 +25,13 @@ object Utils {
     }
 
     @SuppressLint("DefaultLocale")
-    fun formatMillisToMinuteSecond(milliseconds: Long): String {
-        val totalSeconds = milliseconds / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
+    fun formatMillisToMinuteSecond(seconds: Long): String {
+        val minutes = seconds / 60
+        val seconds = seconds % 60
         return String.format(if(minutes < 10) AppConstant.TIME_FORMAT_1 else AppConstant.TIMEFORMAT_2, minutes, seconds)
     }
+
+    val uiScope = CoroutineScope(Dispatchers.Main + Job())
 
 
 }

@@ -5,17 +5,15 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import com.ravish.player.data.model.SongItem
-import kotlinx.coroutines.delay
 
 class MediaFileManager(private val context: Context) {
-    var audioList:List<SongItem>? = null
-     suspend fun loadAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
-       queryAudioFiles(onLoaded, loadProgress)
+    var audioList: List<SongItem>? = null
+    suspend fun loadAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit) {
+        queryAudioFiles(onLoaded)
     }
 
-   private suspend fun queryAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit, loadProgress: suspend (Int, Int) -> Unit) {
+    private suspend fun queryAudioFiles(onLoaded: suspend (List<SongItem>) -> Unit) {
         val audioList = mutableListOf<SongItem>()
 
         val projection = arrayOf(
@@ -65,7 +63,6 @@ class MediaFileManager(private val context: Context) {
                     id
                 )
                 audioList.add(SongItem(id, title, artist, album, duration, data, contentUri))
-                loadProgress.invoke(++count, total)
             }
             onLoaded.invoke(audioList)
         }

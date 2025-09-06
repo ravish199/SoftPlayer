@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
@@ -29,20 +33,24 @@ import com.ravish.softplayer.R
 import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
-val backgroundImage = mutableStateOf<Bitmap?>(null)
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
-
+    val audioList by viewModel.mediaUpdateUIState!!.mediaItemsUpdateState.collectAsStateWithLifecycle()
+    val backgroundImage by viewModel.songInfoUIState!!.playerBackgroundState.collectAsStateWithLifecycle()
+    val categoryName by viewModel.songCategoryUIState!!.categoryNameState.collectAsStateWithLifecycle()
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .blur(30.dp),
-             bitmap = (backgroundImage.value?: BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.app_background)).asImageBitmap(),
+            bitmap = (backgroundImage ?: BitmapFactory.decodeResource(
+                LocalContext.current.resources,
+                R.drawable.app_background
+            )).asImageBitmap(),
             contentDescription = "Song Name",
             contentScale = ContentScale.FillBounds,
             alpha = 1f
@@ -58,20 +66,27 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             val modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
-          //  DrawEquilizerUI(modifier = modifier.weight(1.5f).padding(top = 50.dp))
 
-          //  DrawSongGroupUI(modifier = modifier.weight(1f))
+            DrawSongHeader(
+                viewModel = viewModel,
+                modifier = modifier.weight(1f),
+                categoryName
+            )
 
-            DrawSongHeader(modifier = modifier.weight(1f), viewModel.categoryName, viewModel.totalSongs)
+                DrawSongTileUI(
+                    viewModel = viewModel,
+                    modifier = Modifier
+                        .weight(2.5f)
+                        .padding(0.dp),
+                    audioList = audioList
+                )
 
-            DrawSongTileUI(viewModel,
-                modifier = Modifier.weight(2.5f).
-                padding(0.dp))
 
             DrawPayerView(viewModel, modifier = modifier.weight(2.5f))
 
 
-            DrawPlayerControl(viewModel,
+            DrawPlayerControl(
+                viewModel,
                 modifier = modifier
                     .fillMaxWidth()
                     .weight(1.5f)
@@ -79,14 +94,6 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             )
         }
     }
-}
-
-fun updateSongs(songList: List<com.ravish.player.data.model.SongItem>) {
-    updateSongList(songList)
-}
-
-fun updateBackground(bitmap: Bitmap?) {
-backgroundImage.value = bitmap
 }
 
 
