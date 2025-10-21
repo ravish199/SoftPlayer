@@ -8,12 +8,15 @@ import android.net.Uri
 import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import java.lang.reflect.InvocationTargetException
 
 object Utils {
+
+
 
     @RequiresApi(Build.VERSION_CODES.Q)
     fun getImage(context: Context, uri: Uri): Bitmap {

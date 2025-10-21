@@ -1,6 +1,7 @@
 package com.ravish.softplayer.ui.viewmodel
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
@@ -15,23 +16,39 @@ import com.ravish.player.usecases.SeekTo
 import com.ravish.player.usecases.SetRepeatMode
 import com.ravish.player.usecases.Stop
 import com.ravish.player.usecases.UpdateShuffleState
+import com.ravish.softplayer.data.EqualizerSettingsManager
+import com.ravish.softplayer.data.model.EqualizerUIState
 import com.ravish.softplayer.data.model.MediaUpdateUIState
 import com.ravish.softplayer.data.model.PlayBackUIState
 import com.ravish.softplayer.data.model.RepeatMode
 import com.ravish.softplayer.data.model.SliderUIState
 import com.ravish.softplayer.data.model.SongCategoryUIState
 import com.ravish.softplayer.data.model.SongInfoUIState
+import com.ravish.softplayer.data.model.SoundEffectUseCases
 import com.ravish.softplayer.data.model.UseCases
+import com.ravish.soundeffects.AudioEffectManager
+import com.ravish.soundeffects.data.EqualizerPreset
+import com.ravish.soundeffects.usecases.EnableEqualizer
+import com.ravish.soundeffects.usecases.InitializeEqualizer
+import com.ravish.soundeffects.usecases.SetBandLevel
+import com.ravish.soundeffects.usecases.UpdateBandLevels
+import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PlayerViewModel @Inject constructor() : ViewModel() {
+open class PlayerViewModel @Inject constructor() : ViewModel() {
 
     private var useCases: UseCases? = null
+    private var equalizerSettingsManager: EqualizerSettingsManager? = null
+
+
+    private var soundEffectUseCases: SoundEffectUseCases? = null
     var songCategoryUIState: SongCategoryUIState? = null
     var songInfoUIState: SongInfoUIState? = null
     var sliderUIState: SliderUIState? = null
@@ -41,6 +58,26 @@ class PlayerViewModel @Inject constructor() : ViewModel() {
     private var _enableListMode = MutableStateFlow(false)
     var enableListMode = _enableListMode.asStateFlow()
 
+    private var _openEqualizerState = MutableStateFlow(false)
+    var openEqualizerState = _openEqualizerState.asStateFlow()
+
+    var equalizerBandlevels: StateFlow<Array<Float>?>? = null
+    var audioEffectManager: AudioEffectManager? = null
+
+    var musicPlayer: MusicPlayer? = null
+    var equalizerUIState: EqualizerUIState? = null
+
+    private var _updatePresetBand = MutableStateFlow<List<Float>>(emptyList())
+    var updatePresetBand = _updatePresetBand.asStateFlow()
+
+    fun updateEqualizeView() {
+        _openEqualizerState.value = !openEqualizerState.value
+    }
+
+    fun closeEqualizer() {
+        _openEqualizerState.value = false
+
+    }
 
     fun setPlayerBackground(bitmap: Bitmap?) {
         playerBackgroundState.value = bitmap
@@ -83,6 +120,55 @@ class PlayerViewModel @Inject constructor() : ViewModel() {
         _enableListMode.value = enable
     }
 
+    fun initializeEqualizer() {
+        viewModelScope.launch {
+            soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
+            val savedLevels = equalizerSettingsManager?.eqBandLevelsFlow?.first()
+            val savedEnabledState = equalizerSettingsManager?.eqEnabledFlow?.first()
+            soundEffectUseCases?.enableEqualizer?.invoke(savedEnabledState ?: false)
+            soundEffectUseCases?.updateBandLevel?.invoke(savedLevels?.toTypedArray() ?: emptyArray())
+        }
+
+    }
+
+
+    /**
+     * Call this from your UI when a slider value changes and settles.
+     */
+    fun updateAndSaveBandLevel(bandIndex: Int, level: Float) {
+        viewModelScope.launch {
+            // Set the level in the audio effect
+            soundEffectUseCases?.setBandLevel?.invoke(bandIndex.toShort(), level)
+            equalizerSettingsManager?.saveBandLevels(audioEffectManager?.getBandLevels()?.toList())
+        }
+    }
+
+    fun updatePresetBands(levels: List<Float>) {
+        Log.d("PlayerViewModel", "updatePresetBands: $levels")
+        _updatePresetBand.value = levels
+        levels.forEachIndexed { index, preset ->
+            updateAndSaveBandLevel(index, preset)
+        }
+    }
+
+    /**
+     * Call this from your UI when the main equalizer switch is toggled.
+     */
+    fun updateAndSaveEqEnabled(isEnabled: Boolean) {
+        viewModelScope.launch {
+            soundEffectUseCases?.enableEqualizer?.invoke(isEnabled)
+            equalizerSettingsManager?.saveEqEnabled(isEnabled)
+        }
+    }
+
+    fun setBandLevel(band: Int, bandLevel: Float) {
+        updateAndSaveBandLevel(bandIndex = band, level = bandLevel)
+    }
+
+    fun getPresetData():List<EqualizerPreset> {
+        return audioEffectManager?.getPresetData() ?: emptyList()
+    }
+
 
     fun setRepeatMode(repeatMode: RepeatMode) {
         val rMode = when (repeatMode) {
@@ -94,7 +180,10 @@ class PlayerViewModel @Inject constructor() : ViewModel() {
     }
 
 
-    fun initMusicPlayer(musicPlayer: MusicPlayer?) {
+    fun initMusicPlayer(musicPlayer: MusicPlayer?,
+                        audioEffectManager: AudioEffectManager?,
+                        equalizerSettingsManager: EqualizerSettingsManager) {
+        this.equalizerSettingsManager = equalizerSettingsManager
         musicPlayer?.let {
             initUseCases(it)
             initSongCategoryUIState(it)
@@ -102,7 +191,21 @@ class PlayerViewModel @Inject constructor() : ViewModel() {
             initSliderUiState(it)
             initMediaUpdateUIState(it)
             initPlayBackUIState(it)
+            this.musicPlayer = it
         }
+        audioEffectManager?.let {
+            initAudioEffects(audioEffectManager = it)
+        }
+    }
+
+    private fun initAudioEffects(audioEffectManager: AudioEffectManager) {
+        soundEffectUseCases = SoundEffectUseCases(
+            initializeEqualizer = InitializeEqualizer(audioEffectManager = audioEffectManager),
+            enableEqualizer = EnableEqualizer(audioEffectManager = audioEffectManager),
+            updateBandLevel = UpdateBandLevels(audioEffectManager = audioEffectManager),
+            setBandLevel = SetBandLevel(audioEffectManager = audioEffectManager)
+        )
+        this.audioEffectManager = audioEffectManager
     }
 
     private fun initPlayBackUIState(musicPlayer: MusicPlayer) {

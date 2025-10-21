@@ -30,6 +30,7 @@ import com.ravish.player.MediaFileManager
 import com.ravish.player.MusicPlayer
 import com.ravish.softplayer.ui.navigation.AppNavGraph
 import com.ravish.softplayer.R
+import com.ravish.softplayer.data.EqualizerSettingsManager
 import com.ravish.softplayer.ui.navigation.Screen
 import com.ravish.softplayer.data.service.PlayerService
 import com.ravish.softplayer.ui.theme.SoftPlayerTheme
@@ -38,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private var currentSongList: List<com.ravish.player.data.model.SongItem>? =
         null // Assuming you have a SongItem class
     private var currentSongIdex = 0
+
 
     private val viewModel: PlayerViewModel by viewModels()
     private lateinit var navigationController: NavHostController
@@ -88,6 +91,9 @@ class MainActivity : ComponentActivity() {
                     Log.d("connectService:", "NavigateToMainScreen")
                     NavigateToMainScreen()
                 }
+
+
+
 
 
                 /*      with(viewModel.songLoadProgressUiState.collectAsStateWithLifecycle()) {
@@ -152,6 +158,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     override fun onStop() {
         super.onStop()
 
@@ -166,7 +173,9 @@ class MainActivity : ComponentActivity() {
                 playerService = (p1 as PlayerService.ServiceBinder).getService()
                 playerService?.let {
                     viewModel.initMusicPlayer(
-                        musicPlayer = playerService?.musicPlayer
+                        musicPlayer = playerService?.musicPlayer,
+                        audioEffectManager = playerService?.audioEffectManager,
+                        equalizerSettingsManager = EqualizerSettingsManager(this@MainActivity)
                     )
                     checkPermissionAndLoadAudio(
                         playerService?.musicPlayer,

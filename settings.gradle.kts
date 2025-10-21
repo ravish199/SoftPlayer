@@ -23,3 +23,4 @@ rootProject.name = "SoftPlayer"
 include(":app")
 include(":core")
 include(":player")
+include(":soundeffects")

@@ -15,6 +15,9 @@ import com.ravish.player.MusicPlayer
 import com.ravish.softplayer.PlayerNotificationManager
 
 import com.ravish.softplayer.data.PlayerControlState
+import com.ravish.softplayer.data.model.SoundEffectUseCases
+import com.ravish.soundeffects.AudioEffectManager
+import com.ravish.soundeffects.EqualizerEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +27,7 @@ import kotlinx.coroutines.launch
 class PlayerService : Service() {
 
     var musicPlayer: MusicPlayer? = null
+    var audioEffectManager: AudioEffectManager? =null
      var mediaFileManager: MediaFileManager? = null
     val _playerState = MutableStateFlow<PlayerControlState?>(null)
 
@@ -32,6 +36,7 @@ class PlayerService : Service() {
         Log.d("PlayerService:", "onCreate")
         CoroutineScope(Dispatchers.IO).launch {
             musicPlayer = MusicPlayer(applicationContext)
+            audioEffectManager = EqualizerEffect()
             musicPlayer?.initializePlayer()
         }
 

@@ -3,10 +3,12 @@ package com.ravish.player
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession // For system integration
 import com.ravish.player.data.model.SongItem
@@ -35,6 +37,7 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
     var totalDurationUpdater = MutableStateFlow(0L)
     private var isPlaying = false
 
+
     private var currentPositionUpdateJob: Job? = null
     private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -48,6 +51,7 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
     var mediaItemsState = MutableStateFlow(emptyList<SongItem>())
 
 
+    @OptIn(UnstableApi::class)
     fun initializePlayer() {
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Builder(context).build().apply {
@@ -361,6 +365,8 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
         //selectedIndex.value = index
     }
 
+    @OptIn(UnstableApi::class)
+    fun getAudioSessionId(): Int? = exoPlayer?.audioSessionId
 
 }
 

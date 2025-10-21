@@ -24,4 +24,7 @@ val ButtonContainerColor = Color(0xffff5555)
 val ThumbColor = Color(0xffffffff)
 val ActiveTrackColor = Color(0xffff5555)
 var InactiveTrackColor = Color(0x99999999)
+val dialogBackground = Color(0xffffffff)
+val ButtonContainerColorSemiTransparent = Color(0x77ff5555)
+val TransparentColor = Color(0x00000000)
 

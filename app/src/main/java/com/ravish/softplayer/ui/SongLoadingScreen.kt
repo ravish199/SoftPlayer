@@ -25,19 +25,19 @@ fun SongLoadingScreen() {
         modifier = Modifier.fillMaxHeight().fillMaxWidth().background(Color.Black),
     contentAlignment = Alignment.Center
     ) {
-        Image(
+/*        Image(
             modifier = Modifier.fillMaxSize().padding().background(Color.Black),
             painter = painterResource(id = R.drawable.frequncry_icon),
             contentScale = ContentScale.FillHeight,
             contentDescription = ""
-        )
+        )*/
 
-     /*   Box(modifier = Modifier.wrapContentSize().padding(top = 15.dp),
+        Box(modifier = Modifier.wrapContentSize().padding(top = 15.dp),
             contentAlignment = Alignment.CenterStart) {
             DrawSongLoadProgress(
                 modifier = Modifier.fillMaxWidth(), strokeWidth = 15.dp
             )
-        }*/
+        }
 
 
     }

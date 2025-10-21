@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">SoftPlayer</string>
     <string name="permission_not_granted">Permission Not Granted</string>
+    <string name="band1_label">60Hz</string>
+    <string name="band2_label">250Hz</string>
+    <string name="band3_label">1kHz</string>
+    <string name="band4_label">5kHz</string>
+    <string name="band5_label">15kHz</string>
 </resources>

@@ -102,7 +102,7 @@ fun DrawSongTileUI(
                 .height(itemHeight), // Set a specific height for the row of tiles
             horizontalArrangement = Arrangement.spacedBy(8.dp), // Spacing between items
             contentPadding = contentPadding, // Padding at the start/end and top/bottom of the content
-            state = lazyListState // Pass state if needed
+            state = lazyListState, // Pass state if needed
         ) {
             items(
                 items = audioList,
