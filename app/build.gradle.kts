@@ -61,7 +61,9 @@ dependencies {
     implementation(project(":player"))
     implementation(libs.androidx.foundation.android)
     implementation(project(":soundeffects"))
-    implementation(libs.androidx.datastore.core.android) // Check for the latest version
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.lifecycle.service) // Check for the latest version
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

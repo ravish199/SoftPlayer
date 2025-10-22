@@ -1,3 +1,4 @@
+/*
 package com.ravish.softplayer
 
 import android.app.Notification
@@ -19,4 +20,4 @@ object PlayerNotificationManager {
        return NotificationCompat.Builder(context, mChannel.id).build()
     }
 
-}
+}*/
