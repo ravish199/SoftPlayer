@@ -1,7 +1,8 @@
 package com.ravish.softplayer.ui
 
-import android.graphics.Bitmap
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -13,11 +14,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -26,23 +31,44 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
-import com.ravish.player.data.model.SongItem
+import com.ravish.softplayer.ui.equalizerview.DrawEqualizerDialog
+import com.ravish.softplayer.ui.equalizerview.EqualizerScreen
+import com.ravish.softplayer.ui.theme.dialogBackground
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
+import androidx.compose.ui.platform.LocalResources
+import com.ravish.player.data.model.SongItem
+import com.ravish.softplayer.data.EqualizerSettingsManager
+import com.ravish.softplayer.data.model.MediaUpdateUIState
+import com.ravish.softplayer.data.model.PlayBackUIState
+import com.ravish.softplayer.data.model.SliderUIState
+import com.ravish.softplayer.data.model.SongCategoryUIState
+import com.ravish.softplayer.data.model.SongInfoUIState
+import com.ravish.softplayer.ui.theme.TransparentColor
+import com.ravish.soundeffects.AudioEffectManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import kotlin.collections.emptyList
 
-val backgroundImage = mutableStateOf<Bitmap?>(null)
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
-
+    val audioList by viewModel.mediaUpdateUIState!!.mediaItemsUpdateState.collectAsStateWithLifecycle()
+    val backgroundImage by viewModel.songInfoUIState!!.playerBackgroundState.collectAsStateWithLifecycle()
+    val categoryName by viewModel.songCategoryUIState!!.categoryNameState.collectAsStateWithLifecycle()
+    val equalizerState by viewModel.openEqualizerState.collectAsStateWithLifecycle()
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .blur(30.dp),
-             bitmap = (backgroundImage.value?: BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.app_background)).asImageBitmap(),
+            bitmap = (backgroundImage ?: BitmapFactory.decodeResource(
+                LocalResources.current,
+                R.drawable.app_background
+            )).asImageBitmap(),
             contentDescription = "Song Name",
             contentScale = ContentScale.FillBounds,
             alpha = 1f
@@ -58,41 +84,100 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             val modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
-          //  DrawEquilizerUI(modifier = modifier.weight(1.5f).padding(top = 50.dp))
 
-          //  DrawSongGroupUI(modifier = modifier.weight(1f))
+            DrawSongHeader(
+                viewModel = viewModel,
+                modifier = modifier.weight(1f),
+                categoryName
+            )
 
-            DrawSongHeader(modifier = modifier.weight(1f), viewModel.categoryName, viewModel.totalSongs)
+            Box(modifier = Modifier
+                .weight(6f)) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        DrawSongTileUI(
+                            viewModel = viewModel,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(0.dp),
+                            audioList = audioList
+                        )
+                        DrawPayerView(viewModel, modifier = modifier.weight(1f))
+                    }
 
-            DrawSongTileUI(viewModel,
-                modifier = Modifier.weight(2.5f).
-                padding(0.dp))
+                if(equalizerState) {
+                    viewModel.initializeEqualizer()
+                    Button(onClick = {},
+                        shape = RectangleShape,
+                        modifier = Modifier.fillMaxSize().background(TransparentColor),
+                        enabled = false) { }
+                    EqualizerScreen(modifier = Modifier.fillMaxSize().background(dialogBackground)
+                        , viewModel = viewModel)
+                }
 
-            DrawPayerView(viewModel, modifier = modifier.weight(2.5f))
+            }
 
-
-            DrawPlayerControl(viewModel,
+            DrawPlayerControl(
+                viewModel,
                 modifier = modifier
                     .fillMaxWidth()
                     .weight(1.5f)
-                    .padding(bottom = 100.dp),
+                    .padding(bottom = 80.dp),
             )
+        }
+
+        with(viewModel.openEqualizerState.collectAsStateWithLifecycle().value) {
+            if (this) {
+
+             //DrawEqualizerDialog(modifier = Modifier.fillMaxWidth(), viewModel)
+        /*        EqualizerScreen(modifier = Modifier.fillMaxHeight(0.8f)
+                    .fillMaxWidth().align(alignment = Alignment.BottomStart)
+                    .background(dialogBackground)
+                    , viewModel = viewModel)*/
+            }
         }
     }
 }
 
-fun updateSongs(songList: List<com.ravish.player.data.model.SongItem>) {
-    updateSongList(songList)
-}
 
-fun updateBackground(bitmap: Bitmap?) {
-backgroundImage.value = bitmap
-}
-
-
+@SuppressLint("ViewModelConstructorInComposable")
 @RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun DrawPlayerUIPreview() {
-    DrawPlayerUI(viewModel = viewModel())
+    DrawPlayerUI(viewModel = FakePlayerViewModel(
+    ))
+}
+
+class FakePlayerViewModel @Inject constructor(
+): PlayerViewModel() {
+    init {
+        // Initialize the UI state objects with fake data
+        songCategoryUIState = SongCategoryUIState(
+            categoryNameState = MutableStateFlow("All Songs").asStateFlow(),
+            totalCountState = MutableStateFlow(10).asStateFlow(),
+            songIndexState = MutableStateFlow(0).asStateFlow()
+        )
+        songInfoUIState = SongInfoUIState(
+            songTitleState = MutableStateFlow("Song Title").asStateFlow(),
+            artistsState = MutableStateFlow("Artist Name").asStateFlow(),
+            playerBackgroundState = MutableStateFlow(null).asStateFlow()
+        )
+        sliderUIState = SliderUIState(
+            totalDurationState = MutableStateFlow(240000L).asStateFlow(), // 4 minutes
+            currentPositionState = MutableStateFlow(60000L).asStateFlow() // 1 minute
+        )
+        mediaUpdateUIState = MediaUpdateUIState(
+            mediaItemsUpdateState = MutableStateFlow(
+                listOf(SongItem(1, "Song 1", "Artist 1",
+                    "Album 1", 240000, "", Uri.EMPTY)))
+                .asStateFlow()
+        )
+        playBackUIState = PlayBackUIState(
+            isPlayingState = MutableStateFlow(false).asStateFlow(),
+            playEndedState = MutableStateFlow(false).asStateFlow()
+        )
+    }
 }

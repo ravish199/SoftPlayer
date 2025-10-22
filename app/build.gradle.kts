@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ravish.softplayer"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -59,7 +59,9 @@ dependencies {
         implementation(libs.coil.compose)
     implementation(libs.androidx.navigation.compose.android)
     implementation(project(":player"))
-    implementation(libs.androidx.foundation.android) // Check for the latest version
+    implementation(libs.androidx.foundation.android)
+    implementation(project(":soundeffects"))
+    implementation(libs.androidx.datastore.core.android) // Check for the latest version
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -81,6 +83,7 @@ dependencies {
         // implementation "androidx.media3:media3-ui:1.3.1"
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
 
 
 
