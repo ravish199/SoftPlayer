@@ -6,4 +6,10 @@
     <string name="band3_label">1kHz</string>
     <string name="band4_label">5kHz</string>
     <string name="band5_label">15kHz</string>
+
+    <string name="notification_channel_name">Soft Player Notification</string>
+    <string name="notification_channel_desc">Soft Player Notification Description</string>
+
+
+
 </resources>
