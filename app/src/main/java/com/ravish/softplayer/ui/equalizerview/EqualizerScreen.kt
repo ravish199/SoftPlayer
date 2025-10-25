@@ -67,11 +67,11 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
                 start.linkTo(parent.start)
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
-            }.paddingFromBaseline(bottom = 8.dp)
-                .clickable {
+            }.paddingFromBaseline(bottom = 8.dp),
+                icon = R.drawable.icon_back_arrow,
+                onClick = {
                     viewModel.closeEqualizer()
-                },
-                icon = R.drawable.icon_back_arrow )
+                })
 
             Text(
                 modifier = Modifier
