@@ -60,7 +60,7 @@ fun EqualizerSlider(
     BoxWithConstraints(modifier = modifier.background(color = Color.White)) {
         val maxWidth = min(maxWidth, maxHeight)
         Box(modifier = Modifier.size(maxWidth).align(alignment = Alignment.Center)) {
-            val eqEnabled by viewModel.enableEqualizerState.collectAsStateWithLifecycle()
+            val eqEnabled by viewModel.equalizerUIState!!.enableEqualizerState.collectAsStateWithLifecycle()
             val eqModifier = Modifier
                 .size(maxWidth * 0.8f)
                 .align(alignment = Alignment.Center)
@@ -139,9 +139,9 @@ fun addEqualizerSliders(modifier: Modifier, viewModel: PlayerViewModel) {
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         // Use a Box to contain the rotated slider
-        val eqEnabled by viewModel.enableEqualizerState.collectAsStateWithLifecycle()
+        val eqEnabled by viewModel.equalizerUIState!!.enableEqualizerState.collectAsStateWithLifecycle()
       //  val eqBandsLevel by viewModel.savedEqualizerBandlevels.collectAsStateWithLifecycle()
-val selectedPreset by viewModel.updatePresetBand.collectAsStateWithLifecycle()
+val selectedPreset by viewModel.equalizerUIState!!.updatePresetBand.collectAsStateWithLifecycle()
 
         for (i in 0..NUMBER_OF_SLIDERS-1) {
             val sliderValues =

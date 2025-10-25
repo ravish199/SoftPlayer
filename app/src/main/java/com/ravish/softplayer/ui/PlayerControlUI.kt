@@ -106,12 +106,12 @@ fun DrawPlayButton(viewModel: PlayerViewModel, modifier: Modifier) {
     Log.d("DrawPlayButton", "isPlayingState: $isPlayingState")
     AddIcon2(
         modifier = modifier
-            .size(100.dp)
-            .clickable {
-                if (isPlayingState) viewModel.pause() else viewModel.play()
-            },
+            .size(100.dp),
         icon = if (isPlayingState) R.drawable.icon_pause_new
-        else R.drawable.icon_play_new2
+        else R.drawable.icon_play_new2,
+        onClick = {
+            if (isPlayingState) viewModel.pause() else viewModel.play()
+        }
     )
 }
 

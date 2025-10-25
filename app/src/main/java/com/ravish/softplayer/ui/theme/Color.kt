@@ -32,3 +32,10 @@ val TransparentColor = Color(0x00000000)
 
 val DefaultTextColor = Color(0xff222222)
 
+val TrackTitleTextColor = Color(0xff222222)
+
+val TrackAlbumTextColor = Color(0xcc222222)
+
+val TrackArtistTextColor = Color(0x99222222)
+
+

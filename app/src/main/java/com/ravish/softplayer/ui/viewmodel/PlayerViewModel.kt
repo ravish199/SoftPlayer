@@ -25,6 +25,7 @@ import com.ravish.softplayer.data.model.SliderUIState
 import com.ravish.softplayer.data.model.SongCategoryUIState
 import com.ravish.softplayer.data.model.SongInfoUIState
 import com.ravish.softplayer.data.model.SoundEffectUseCases
+import com.ravish.softplayer.data.model.TrackListUIState
 import com.ravish.softplayer.data.model.UseCases
 import com.ravish.soundeffects.AudioEffectManager
 import com.ravish.soundeffects.data.EqualizerPreset
@@ -49,44 +50,58 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
 
 
     private var soundEffectUseCases: SoundEffectUseCases? = null
-    var songCategoryUIState: SongCategoryUIState? = null
-    var songInfoUIState: SongInfoUIState? = null
+    lateinit var songCategoryUIState: SongCategoryUIState
+    lateinit var songInfoUIState: SongInfoUIState
     var sliderUIState: SliderUIState? = null
-    var mediaUpdateUIState: MediaUpdateUIState? = null
+    lateinit var mediaUpdateUIState: MediaUpdateUIState
+    lateinit var trackListUIState: TrackListUIState
     var playBackUIState: PlayBackUIState? = null
     private var playerBackgroundState = MutableStateFlow<Bitmap?>(null)
     private var _enableListMode = MutableStateFlow(false)
     var enableListMode = _enableListMode.asStateFlow()
 
     private var _openEqualizerState = MutableStateFlow(false)
-    var openEqualizerState = _openEqualizerState.asStateFlow()
+    private var _filterTrack = MutableStateFlow("")
+
+    private var _openTrackList = MutableStateFlow(false)
+
 
 
    private var _savedEqualizerBandlevels= MutableStateFlow<List<Float>?>(emptyList())
     var savedEqualizerBandlevels = _savedEqualizerBandlevels.asStateFlow()
    private var _enableEqualizerState = MutableStateFlow(false)
-    var enableEqualizerState = _enableEqualizerState.asStateFlow()
+
 
 
     var audioEffectManager: AudioEffectManager? = null
 
     var musicPlayer: MusicPlayer? = null
-    var equalizerUIState: EqualizerUIState? = null
+    lateinit var equalizerUIState: EqualizerUIState
 
     private var _updatePresetBand = MutableStateFlow<List<Float>>(emptyList())
-    var updatePresetBand = _updatePresetBand.asStateFlow()
-
     private var _presetName = MutableStateFlow<String>("")
-    var presetName = _presetName.asStateFlow()
 
     fun updateEqualizeView() {
-        _openEqualizerState.value = !openEqualizerState.value
+        _openEqualizerState.value = !(equalizerUIState?.openEqualizerState?.value ?: false)
+    }
+
+    fun openTrackList() {
+        _openTrackList.value = true
+    }
+
+    fun closeTrackList() {
+        _openTrackList.value = false
     }
 
     fun closeEqualizer() {
         _openEqualizerState.value = false
 
     }
+
+    fun filterTrackList(query: String) {
+_filterTrack.value = query
+    }
+
 
     fun setPlayerBackground(bitmap: Bitmap?) {
         playerBackgroundState.value = bitmap
@@ -219,11 +234,22 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
             initSliderUiState(it)
             initMediaUpdateUIState(it)
             initPlayBackUIState(it)
+            initEqualizerUiState()
+            initTrackListUIState()
             this.musicPlayer = it
         }
         audioEffectManager?.let {
             initAudioEffects(audioEffectManager = it)
         }
+    }
+
+    private fun initEqualizerUiState() {
+        equalizerUIState = EqualizerUIState(
+            openEqualizerState = _openEqualizerState.asStateFlow(),
+            enableEqualizerState = _enableEqualizerState.asStateFlow(),
+            updatePresetBand = _updatePresetBand.asStateFlow(),
+            presetName = _presetName.asStateFlow()
+        )
     }
 
     private fun initAudioEffects(audioEffectManager: AudioEffectManager) {
@@ -246,6 +272,13 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     private fun initMediaUpdateUIState(musicPlayer: MusicPlayer) {
         mediaUpdateUIState = MediaUpdateUIState(
             musicPlayer.mediaItemsState.asStateFlow()
+        )
+    }
+
+    private fun initTrackListUIState() {
+        trackListUIState = TrackListUIState(
+            _openTrackList.asStateFlow(),
+            _filterTrack.asStateFlow()
         )
     }
 

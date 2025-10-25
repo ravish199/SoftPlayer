@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+
+    <!-- Path for the musical note on the left -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M9.5,3v10.55c-0.59,-0.34 -1.27,-0.55 -2,-0.55c-2.21,0 -4,1.79 -4,4s1.79,4 4,4s4,-1.79 4,-4V7h4V3h-6.5z"/>
+
+    <!-- Path for the clean list lines on the right -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M15,7h6v2h-6zM15,11h6v2h-6zM15,15h6v2h-6z"/>
+
+</vector>
