@@ -44,7 +44,7 @@ fun SongLoadingScreen() {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun SongLoadingScreenPreview() {
     SongLoadingScreen()
 }

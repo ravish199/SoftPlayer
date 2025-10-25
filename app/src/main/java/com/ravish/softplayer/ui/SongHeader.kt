@@ -133,7 +133,7 @@ fun DrawEqIcon(viewModel: PlayerViewModel, modifier: Modifier) {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun DrawSongHeaderPreview() {
     Column {
         DrawSongHeader(

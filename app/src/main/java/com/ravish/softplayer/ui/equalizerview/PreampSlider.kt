@@ -100,7 +100,7 @@ fun PreampSlider(modifier: Modifier) {
         )
 }
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(showBackground = false)
 @Composable
 fun PreampSliderPreview() {
 PreampSlider(modifier = Modifier.fillMaxWidth())

@@ -23,8 +23,12 @@ val ProgressStrokeColor = Color(0xff00ffcc)
 val ButtonContainerColor = Color(0xffff5555)
 val ThumbColor = Color(0xffffffff)
 val ActiveTrackColor = Color(0xffff5555)
+val ActiveTrackColor_Semi_transparent = Color(0x55ff5555)
 var InactiveTrackColor = Color(0x99999999)
+var InactiveTrackColor_Semi_transparent = Color(0x55999999)
 val dialogBackground = Color(0xffffffff)
 val ButtonContainerColorSemiTransparent = Color(0x77ff5555)
 val TransparentColor = Color(0x00000000)
+
+val DefaultTextColor = Color(0xff222222)
 

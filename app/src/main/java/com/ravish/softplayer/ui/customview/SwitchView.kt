@@ -28,7 +28,7 @@ fun DrawSwitch(modifier: Modifier) {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun DrawSwitchPreview() {
     DrawSwitch(modifier = Modifier)
 }

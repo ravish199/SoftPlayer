@@ -54,7 +54,7 @@ fun DrawSongGroupUI(modifier: Modifier) {
 
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun DrawSongGroupUIPreview() {
     DrawEquilizerUI(
         modifier = Modifier

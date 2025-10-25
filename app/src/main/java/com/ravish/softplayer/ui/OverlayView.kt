@@ -37,7 +37,7 @@ fun OverLayView(modifier: Modifier) {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun OverLayViewPreview() {
     OverLayView(modifier = Modifier.fillMaxSize())
 

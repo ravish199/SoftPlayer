@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
-@Preview(showBackground = true, widthDp = 400, heightDp = 700)
+@Preview(showBackground = false, widthDp = 400, heightDp = 700)
 @Composable
 fun PreviewComplexPlayerLayout() {
     MaterialTheme { // Ensure you have a MaterialTheme in your app

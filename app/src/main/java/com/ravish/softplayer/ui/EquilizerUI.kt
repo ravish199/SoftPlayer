@@ -119,7 +119,7 @@ fun AddIconWithLabel(modifier: Modifier, icon: Int, label: String, selected: Boo
 
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun DrawEquilizerUIPreview() {
     DrawEquilizerUI(
         modifier = Modifier

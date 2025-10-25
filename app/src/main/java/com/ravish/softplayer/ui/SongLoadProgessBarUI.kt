@@ -57,7 +57,7 @@ fun DrawSongLoadProgress(modifier: Modifier, strokeWidth: Dp = 10.dp) {
 
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun DrawSongLoadProgressPreview() {
     DrawSongLoadProgress(modifier = Modifier.fillMaxSize())
 

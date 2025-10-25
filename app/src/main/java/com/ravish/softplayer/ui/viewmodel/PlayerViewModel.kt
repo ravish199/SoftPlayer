@@ -61,7 +61,13 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     private var _openEqualizerState = MutableStateFlow(false)
     var openEqualizerState = _openEqualizerState.asStateFlow()
 
-    var equalizerBandlevels: StateFlow<Array<Float>?>? = null
+
+   private var _savedEqualizerBandlevels= MutableStateFlow<List<Float>?>(emptyList())
+    var savedEqualizerBandlevels = _savedEqualizerBandlevels.asStateFlow()
+   private var _enableEqualizerState = MutableStateFlow(false)
+    var enableEqualizerState = _enableEqualizerState.asStateFlow()
+
+
     var audioEffectManager: AudioEffectManager? = null
 
     var musicPlayer: MusicPlayer? = null
@@ -69,6 +75,9 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
 
     private var _updatePresetBand = MutableStateFlow<List<Float>>(emptyList())
     var updatePresetBand = _updatePresetBand.asStateFlow()
+
+    private var _presetName = MutableStateFlow<String>("")
+    var presetName = _presetName.asStateFlow()
 
     fun updateEqualizeView() {
         _openEqualizerState.value = !openEqualizerState.value
@@ -123,13 +132,18 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     fun initializeEqualizer() {
         viewModelScope.launch {
             soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
-            val savedLevels = equalizerSettingsManager?.eqBandLevelsFlow?.first()
-            val savedEnabledState = equalizerSettingsManager?.eqEnabledFlow?.first()
-            soundEffectUseCases?.enableEqualizer?.invoke(savedEnabledState ?: false)
-            soundEffectUseCases?.updateBandLevel?.invoke(savedLevels?.toTypedArray() ?: emptyArray())
+            _savedEqualizerBandlevels.value = equalizerSettingsManager?.eqBandLevelsFlow?.first()
+            _enableEqualizerState.value = equalizerSettingsManager?.eqEnabledFlow?.first() ?: false
+          //  _presetName.value = equalizerSettingsManager?.presetNameFlow?.first().toString()
+            Log.d("PlayerViewModel", "initializeEqualizer: ${_presetName.value}")
+            Log.d("PlayerViewModel", "initializeEqualizer: ${equalizerSettingsManager?.presetNameFlow.hashCode()}")
+   /*         soundEffectUseCases?.enableEqualizer?.invoke(savedEnabledState ?: false)
+            soundEffectUseCases?.updateBandLevel?.invoke(savedLevels?.toTypedArray() ?: emptyArray())*/
         }
 
     }
+
+
 
 
     /**
@@ -139,15 +153,26 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             // Set the level in the audio effect
             soundEffectUseCases?.setBandLevel?.invoke(bandIndex.toShort(), level)
-            equalizerSettingsManager?.saveBandLevels(audioEffectManager?.getBandLevels()?.toList())
+           // equalizerSettingsManager?.saveBandLevels(audioEffectManager?.getBandLevels()?.toList())
         }
     }
 
-    fun updatePresetBands(levels: List<Float>) {
+
+     fun updatePresetBands(presetName: String, levels: List<Float>) {
+         Log.d("PlayerViewModel", "presetName: $presetName")
         Log.d("PlayerViewModel", "updatePresetBands: $levels")
+         _presetName.value = presetName
         _updatePresetBand.value = levels
         levels.forEachIndexed { index, preset ->
-            updateAndSaveBandLevel(index, preset)
+            setBandLevel(index, preset)
+        }
+
+    }
+
+    fun savePreset(presetName: String) {
+        viewModelScope.launch {
+            // equalizerSettingsManager?.saveBandLevels(levels)
+            equalizerSettingsManager?.savePreset(presetName)
         }
     }
 
@@ -156,13 +181,16 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
      */
     fun updateAndSaveEqEnabled(isEnabled: Boolean) {
         viewModelScope.launch {
+            _enableEqualizerState.value = isEnabled
             soundEffectUseCases?.enableEqualizer?.invoke(isEnabled)
             equalizerSettingsManager?.saveEqEnabled(isEnabled)
         }
     }
 
-    fun setBandLevel(band: Int, bandLevel: Float) {
-        updateAndSaveBandLevel(bandIndex = band, level = bandLevel)
+    fun setBandLevel(bandIndex: Int, level: Float) {
+        viewModelScope.launch {
+            soundEffectUseCases?.setBandLevel?.invoke(bandIndex.toShort(), level)
+        }
     }
 
     fun getPresetData():List<EqualizerPreset> {
