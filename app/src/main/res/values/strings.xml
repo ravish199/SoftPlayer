@@ -9,6 +9,23 @@
 
     <string name="notification_channel_name">Soft Player Notification</string>
     <string name="notification_channel_desc">Soft Player Notification Description</string>
+    <array name="equalizer_band_levels" format="string">
+        <item>60Hz</item>
+        <item>250Hz</item>
+        <item>1kHz</item>
+        <item>4kHz</item>
+        <item>20kHz</item>
+    </array>
+
+    <array name="equalizer_band_values" format="string">
+        <item>15</item>
+        <item>10</item>
+        <item>5</item>
+        <item>0</item>
+        <item>-5</item>
+        <item>-10</item>
+        <item>-15</item>
+    </array>
 
 
 

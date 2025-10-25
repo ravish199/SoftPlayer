@@ -52,7 +52,7 @@ class PlayerService : androidx.lifecycle.LifecycleService() {
             } else {
                 Log.d("MediaNotificationManager:", "stopForeground")
                 // If it's not ongoing, the service can be stopped
-              //  stopForeground(STOP_FOREGROUND_REMOVE)
+                stopForeground(STOP_FOREGROUND_REMOVE)
             }
         }
 

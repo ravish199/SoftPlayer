@@ -201,7 +201,7 @@ fun DrawSlider(
 }
 
 @Composable
-@Preview
+@Preview(showBackground = false)
 fun SliderViewPreview() {
     SliderView(viewModel = viewModel(), modifier = Modifier)
 }

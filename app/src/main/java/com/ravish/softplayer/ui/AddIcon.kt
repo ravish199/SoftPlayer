@@ -77,7 +77,7 @@ fun AddIcon2(modifier: Modifier, icon: Int) {
 }
 
 
-@Preview
+@Preview(showBackground = false)
 @Composable
 fun AddIconPreview() {
     AddIcon(

@@ -78,7 +78,7 @@ fun MyCustomSliderThumb(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun CustomThumbPreview() {
     MaterialTheme {

@@ -13,7 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.ravish.softplayer.ui.customview.CustomPlayerTrack
 import com.ravish.softplayer.ui.customview.MyCustomSliderThumb
 import com.ravish.softplayer.ui.theme.ActiveTrackColor
+import com.ravish.softplayer.ui.theme.ActiveTrackColor_Semi_transparent
 import com.ravish.softplayer.ui.theme.InactiveTrackColor
+import com.ravish.softplayer.ui.theme.InactiveTrackColor_Semi_transparent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,8 +29,7 @@ fun SliderView2(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     Slider(
-        modifier = modifier
-            .wrapContentSize(),
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
         onValueChangeFinished = onValueChangeFinished,
@@ -43,8 +44,8 @@ fun SliderView2(
         thumb = {
             MyCustomSliderThumb(
                 interactionSource = interactionSource, // Pass the SAME source here
-                thumbColor = ActiveTrackColor,
-                iconColor = ActiveTrackColor,
+                thumbColor = if(enabled) ActiveTrackColor else InactiveTrackColor,
+                iconColor = if(enabled) ActiveTrackColor else InactiveTrackColor,
                 baseSize = 16.dp,
                 iconSize = 12.dp,
                 baseElevation = 0.dp,
@@ -55,8 +56,9 @@ fun SliderView2(
             CustomPlayerTrack(
                 // Your new custom track composable
                 sliderState = sliderState,
-                activeTrackColor = ActiveTrackColor,  // From your theme
-                inactiveTrackColor = InactiveTrackColor, // From your theme
+                activeTrackColor = if(enabled) ActiveTrackColor else InactiveTrackColor,  // From your theme
+                inactiveTrackColor = if(enabled) ActiveTrackColor_Semi_transparent else
+                    InactiveTrackColor_Semi_transparent, // From your theme
                 desiredTrackHeight = 6.dp,
             )
         },

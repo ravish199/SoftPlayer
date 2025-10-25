@@ -1,5 +1,7 @@
 package com.ravish.softplayer.ui.equalizerview
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,8 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ravish.softplayer.R
 import com.ravish.softplayer.data.EqualizerSettingsManager
+import com.ravish.softplayer.ui.AddIcon
+import com.ravish.softplayer.ui.AddIcon2
 import com.ravish.softplayer.ui.theme.ButtonContainerColor
 import com.ravish.softplayer.ui.theme.ButtonContainerColorSemiTransparent
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
@@ -39,7 +46,7 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 @Composable
 fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
     val primary = Color(0xFFFF6A00)
-    var isEnabled by remember { mutableStateOf(true) }
+    val isEnabled by viewModel.enableEqualizerState.collectAsStateWithLifecycle()
     var presetExpanded by remember { mutableStateOf(false) }
     var presetName by remember { mutableStateOf("New") }
     var preamp by remember { mutableStateOf(0f) }
@@ -55,11 +62,16 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
             modifier = Modifier.fillMaxWidth()
         ) {
             val (eqLabel, enable, enableSwitch) = createRefs()
-            Text(modifier = Modifier.constrainAs(eqLabel) {
+
+            AddIcon2(modifier = Modifier.constrainAs(eqLabel) {
                 start.linkTo(parent.start)
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
-            }, text = "Equalizer", fontSize = (28 * sizeRatio).sp, fontWeight = FontWeight.Bold)
+            }.paddingFromBaseline(bottom = 8.dp)
+                .clickable {
+                    viewModel.closeEqualizer()
+                },
+                icon = R.drawable.icon_back_arrow )
 
             Text(
                 modifier = Modifier
@@ -80,8 +92,8 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
 
                 checked = isEnabled,
                 onCheckedChange = {
-                    isEnabled = it
-                    viewModel.updateAndSaveEqEnabled(isEnabled)
+                    Log.d("EqualizerScreen", "onCheckedChange: $isEnabled")
+                    viewModel.updateAndSaveEqEnabled(!isEnabled)
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = ButtonContainerColor,
@@ -92,10 +104,6 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
 
         // Presets row
         PresetUI(modifier = Modifier, viewModel = viewModel)
-
-
-        // Preamp
-        PreampUI(modifier = Modifier)
 
         // Bands area
 
@@ -108,9 +116,9 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            EqualizerBands(
+            EqualizerSlider(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth()
                     .fillMaxHeight(), viewModel = viewModel
             )
         }

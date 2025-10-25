@@ -1,6 +1,7 @@
 package com.ravish.softplayer.data
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -19,6 +20,7 @@ class EqualizerSettingsManager(private val context: Context) {
     companion object {
         val EQ_ENABLED_KEY = booleanPreferencesKey("eq_enabled")
         val EQ_BAND_LEVELS_KEY = stringPreferencesKey("eq_band_levels")
+        val EQ_BAND_PRESET_KEY = stringPreferencesKey("eq_band_preset_name")
     }
 
     // --- Read Data ---
@@ -44,6 +46,7 @@ class EqualizerSettingsManager(private val context: Context) {
         }
     }
 
+
     // --- Write Data ---
 
     /**
@@ -62,11 +65,23 @@ class EqualizerSettingsManager(private val context: Context) {
      */
     suspend fun saveBandLevels(bandLevels: List<Float>?) {
         // Convert the list of floats to a single comma-separated string
+        Log.d("EqualizerSettingsManager", "saveBandLevels: $bandLevels")
         bandLevels?.let {
             val levelsString = it.joinToString(",")
             context.dataStore.edit { settings ->
                 settings[EQ_BAND_LEVELS_KEY] = levelsString
             }
         }
+    }
+
+    suspend fun savePreset(presetName: String) {
+        context.dataStore.edit { settings ->
+            settings[EQ_BAND_PRESET_KEY] = presetName
+        }
+    }
+
+    val presetNameFlow: Flow<String> = context.dataStore.data.map {
+            preferences ->
+        preferences[EQ_BAND_PRESET_KEY] ?: ""
     }
 }

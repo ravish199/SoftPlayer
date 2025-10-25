@@ -53,7 +53,7 @@ fun DrawPayerView(viewModel: PlayerViewModel, modifier: Modifier) {
 }
 
 
-@Preview
+@Preview(showBackground = false)
 @Composable
 fun DrawPayerViewPreview() {
     DrawPayerView(

@@ -193,7 +193,7 @@ fun DrawSongTileUI(
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@Preview(showBackground = true, widthDp = 360, heightDp = 240)
+@Preview(showBackground = false, widthDp = 360, heightDp = 240)
 @Composable
 fun DrawSongTileUIPreview_LazyRow_NotEmpty() {
     val sampleSongs = listOf(
@@ -245,7 +245,7 @@ fun DrawSongTileUIPreview_LazyRow_NotEmpty() {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@Preview(showBackground = true, widthDp = 360, heightDp = 240)
+@Preview(showBackground = false, widthDp = 360, heightDp = 240)
 @Composable
 fun DrawSongTileUIPreview_LazyRow_Empty() {
     MaterialTheme {
@@ -284,7 +284,7 @@ fun updateSongList(songList: List<com.ravish.player.data.model.SongItem>) {
 }
 
 // Preview for AddSongImage
-@Preview
+@Preview(showBackground = false)
 @Composable
 fun AddSongImagePreview() {
     AddSongImage(
