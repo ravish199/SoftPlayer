@@ -57,20 +57,21 @@ fun AddIcon1(modifier: Modifier, icon: Int) {
 }
 
 @Composable
-fun AddIcon2(modifier: Modifier, icon: Int) {
+fun AddIcon2(modifier: Modifier, icon: Int, onClick: ()-> Unit, isEnabled: Boolean = true) {
     Box(modifier = modifier.background(
         color = Color.Transparent,
         shape = CircleShape,
     )) {
         IconButton(
             modifier = modifier,
-            onClick = { /*TODO*/ },
+            onClick = onClick,
+            enabled = isEnabled
         ) {
             Icon(
                 modifier = modifier.padding(1.dp),
                 contentDescription = "Previous",
                 painter = painterResource(id = icon),
-                tint = ButtonContainerColor
+                tint = if(isEnabled) ButtonContainerColor else NormalStateColor
             )
         }
     }
