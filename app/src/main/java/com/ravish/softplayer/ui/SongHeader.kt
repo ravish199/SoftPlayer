@@ -1,14 +1,9 @@
 package com.ravish.softplayer.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,25 +22,26 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
-import com.ravish.softplayer.ui.theme.ButtonContainerColor
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 @Composable
 fun DrawSongHeader(viewModel: PlayerViewModel, modifier: Modifier, categoryName: String? = null) {
 
-        val songIndex by viewModel.songCategoryUIState!!.songIndexState.collectAsStateWithLifecycle()
-        val totalSongs by viewModel.songCategoryUIState!!.totalCountState.collectAsStateWithLifecycle()
+    val songIndex by viewModel.songCategoryUIState!!.songIndexState.collectAsStateWithLifecycle()
+    val totalSongs by viewModel.songCategoryUIState!!.totalCountState.collectAsStateWithLifecycle()
 
 
     var listMode by remember { mutableStateOf(false) }
 
     ConstraintLayout(modifier = modifier.fillMaxWidth()) {
-        val (header, equilizer) = createRefs()
+        val (header, equalizer, trackList) = createRefs()
         Column(
-            modifier = Modifier.wrapContentSize().constrainAs(header) {
-                end.linkTo(parent.end)
-                start.linkTo(parent.start)
-            }
+            modifier = Modifier
+                .wrapContentSize()
+                .constrainAs(header) {
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -69,12 +64,41 @@ fun DrawSongHeader(viewModel: PlayerViewModel, modifier: Modifier, categoryName:
             )
 
         }
-            DrawEqIcon(viewModel = viewModel, modifier = Modifier.wrapContentSize().constrainAs(equilizer) {
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            })
+
+        AddIcon2(
+            modifier = Modifier
+                .wrapContentSize()
+                .constrainAs(equalizer) {
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                },
+            icon = R.drawable.frequncry_icon,
+            onClick = {
+                viewModel.updateEqualizeView()
+            },
+            isEnabled = true
+        )
+
+        AddIcon2(
+            modifier = Modifier
+                .wrapContentSize()
+                .constrainAs(trackList) {
+                    end.linkTo(equalizer.start)
+                    bottom.linkTo(parent.bottom)
+                },
+            icon = R.drawable.ic_track_list,
+            onClick = {
+                viewModel.openTrackList()
+            },
+            isEnabled = true
+        )
 
     }
+}
+
+@Composable
+fun DrawEqualizerIcon() {
+
 }
 
 @Composable
@@ -115,22 +139,6 @@ fun DrawSongInfo(viewModel: PlayerViewModel, modifier: Modifier) {
     }
 }
 
-@Composable
-fun DrawEqIcon(viewModel: PlayerViewModel, modifier: Modifier) {
-    IconButton(
-        modifier = modifier,
-        onClick = {viewModel.updateEqualizeView()},
-    ) {
-        Icon(
-            modifier = modifier.padding(1.dp),
-            contentDescription = "Previous",
-            painter = painterResource(id = R.drawable.frequncry_icon),
-            tint = ButtonContainerColor
-        )
-    }
-
-
-}
 
 @Composable
 @Preview(showBackground = false)

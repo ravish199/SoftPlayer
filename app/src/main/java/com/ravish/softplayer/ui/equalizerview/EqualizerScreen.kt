@@ -36,8 +36,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
-import com.ravish.softplayer.data.EqualizerSettingsManager
-import com.ravish.softplayer.ui.AddIcon
 import com.ravish.softplayer.ui.AddIcon2
 import com.ravish.softplayer.ui.theme.ButtonContainerColor
 import com.ravish.softplayer.ui.theme.ButtonContainerColorSemiTransparent
@@ -46,7 +44,7 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 @Composable
 fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
     val primary = Color(0xFFFF6A00)
-    val isEnabled by viewModel.enableEqualizerState.collectAsStateWithLifecycle()
+    val isEnabled by viewModel.equalizerUIState!!.enableEqualizerState.collectAsStateWithLifecycle()
     var presetExpanded by remember { mutableStateOf(false) }
     var presetName by remember { mutableStateOf("New") }
     var preamp by remember { mutableStateOf(0f) }
@@ -54,24 +52,29 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
     val sizeRatio = 0.5f
 
     Column(
-        modifier = modifier.padding(start = 8.dp, end = 8.dp)
+        modifier = modifier.padding(top = 30.dp, start = 8.dp, end = 8.dp)
     ) {
 
         // Top row: title + enable switch
         ConstraintLayout(
             modifier = Modifier.fillMaxWidth()
+
         ) {
             val (eqLabel, enable, enableSwitch) = createRefs()
 
-            AddIcon2(modifier = Modifier.constrainAs(eqLabel) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-            }.paddingFromBaseline(bottom = 8.dp)
-                .clickable {
+            AddIcon2(
+                modifier = Modifier
+                    .constrainAs(eqLabel) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .paddingFromBaseline( bottom = 8.dp),
+                onClick = {
                     viewModel.closeEqualizer()
                 },
-                icon = R.drawable.icon_back_arrow )
+                icon = R.drawable.icon_back_arrow
+            )
 
             Text(
                 modifier = Modifier
@@ -171,5 +174,6 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
 @Composable
 @Preview(showBackground = true)
 fun EqualizerPreview() {
+
     EqualizerScreen(modifier = Modifier.fillMaxHeight(0.8f), viewModel = viewModel())
 }
