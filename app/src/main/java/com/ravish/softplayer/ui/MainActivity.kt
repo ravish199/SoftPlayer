@@ -11,18 +11,22 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ravish.softplayer.R
 import com.ravish.softplayer.data.EqualizerSettingsManager
@@ -41,6 +45,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var navigationController: NavHostController
     private var playerService: PlayerService? = null
     private var serviceConnection: ServiceConnection? = null
+
+    // 1. Store the callback as a property
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     private var loadMainScreenState = mutableStateOf(false)
 
@@ -69,32 +76,97 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         connectService()
+/*
+        // 2. Initialize the callback and add it
+        onBackPressedCallback = object : OnBackPressedCallback(false) { // Start as disabled
+            override fun handleOnBackPressed() {
+                // This logic will only run when the callback is enabled
+                Log.d("OnBackPressed", "Custom back press: Closing TrackListScreen.")
+                // Reset the state in the ViewModel that caused the screen to open
+                viewModel.closeTrackList()
+                // Pop the navigation stack to return to the previous screen (PlayerMainScreen)
+                if (navigationController.currentDestination?.route == Screen.TrackListScreen.route) {
+                    navigationController.popBackStack()
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)*/
+
+
         setContent {
             SoftPlayerTheme {
-                val mainScreenLoader by loadMainScreenState
                 navigationController = rememberNavController()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    AppNavGraph(viewModel, navController = navigationController)
-                }
+                AppNavGraph(viewModel, navController = navigationController)
+
+                val mainScreenLoader by loadMainScreenState
                 if (mainScreenLoader) {
-                    Log.d("connectService:", "NavigateToMainScreen")
                     NavigateToMainScreen()
                 }
+
+                // 3. Update the 'isEnabled' state of our stored callback
+                val currentBackStackEntry by navigationController.currentBackStackEntryAsState()
+                val isTrackScreen = currentBackStackEntry?.destination?.route == Screen.TrackListScreen.route
+
+                // Update the callback's enabled state based on the current screen
+               // onBackPressedCallback.isEnabled = isTrackScreen
             }
         }
     }
 
     @Composable
     fun NavigateToMainScreen() {
-        Log.d("navigateToMainScreen:", "navigateToMainScreen")
-        navigationController.navigate(Screen.PlayerMainScreen.route) {
-            popUpTo(navigationController.graph.startDestinationId) {
-                inclusive = true
+        // This navigates to the main screen once the service is connected
+        LaunchedEffect(Unit) {
+            Log.d("navigateToMainScreen:", "Navigating to PlayerMainScreen")
+            navigationController.navigate(Screen.PlayerMainScreen.route) {
+                popUpTo(navigationController.graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
             }
-            launchSingleTop = true
+        }
+
+        // This observes the state to open the track list screen
+        val openTrackScreen by viewModel.trackListUIState.openTrackListStatus.collectAsStateWithLifecycle()
+
+        LaunchedEffect(openTrackScreen) {
+            if (openTrackScreen && navigationController.currentDestination?.route != Screen.TrackListScreen.route) {
+                Log.d("NavigateToMainScreen:", "Navigating to TrackListScreen")
+                navigationController.navigate(Screen.TrackListScreen.route) {
+                    launchSingleTop = true
+                }
+            } else if (!openTrackScreen && navigationController.currentDestination?.route == Screen.TrackListScreen.route) {
+                Log.d("NavigateToMainScreen:", "Navigating back to mainScreen due to state change")
+                navigationController.popBackStack()
+            }
+        }
+
+        val openEqualizerScreen by viewModel.equalizerUIState.openEqualizerState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(openEqualizerScreen) {
+            if (openEqualizerScreen && navigationController.currentDestination?.route != Screen.EqualizerScreen.route) {
+                Log.d("NavigateToMainScreen:", "Navigating to EqualizerScreen")
+                navigationController.navigate(Screen.EqualizerScreen.route) {
+                    launchSingleTop = true
+                }
+            }  else if (!openEqualizerScreen && navigationController.currentDestination?.route == Screen.EqualizerScreen.route) {
+                Log.d("NavigateToMainScreen:", "Navigating back to mainScreen due to state change")
+                navigationController.popBackStack()
+            }
+        }
+
+
+        val currentBackStackEntry by navigationController.currentBackStackEntryAsState()
+        val isTrackScreen = currentBackStackEntry?.destination?.route == Screen.TrackListScreen.route
+        val isEqualizerScreen = currentBackStackEntry?.destination?.route == Screen.EqualizerScreen.route
+        BackHandler(enabled = isTrackScreen) {
+            viewModel.closeTrackList()
+        }
+
+        BackHandler(enabled = isEqualizerScreen) {
+            viewModel.closeEqualizer()
         }
     }
-
 
     private fun connectService() {
         Log.d("connectService:", "connectService")

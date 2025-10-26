@@ -1,7 +1,6 @@
 package com.ravish.softplayer.ui.equalizerview
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +41,7 @@ import com.ravish.softplayer.ui.theme.ButtonContainerColorSemiTransparent
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
+fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
     val primary = Color(0xFFFF6A00)
     val isEnabled by viewModel.equalizerUIState!!.enableEqualizerState.collectAsStateWithLifecycle()
     var presetExpanded by remember { mutableStateOf(false) }
@@ -69,7 +68,7 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
-                    .paddingFromBaseline( bottom = 8.dp),
+                    .padding(top = 8.dp, bottom = 8.dp),
                 onClick = {
                     viewModel.closeEqualizer()
                 },
@@ -175,5 +174,5 @@ fun EqualizerScreen(modifier: Modifier, viewModel: PlayerViewModel) {
 @Preview(showBackground = true)
 fun EqualizerPreview() {
 
-    EqualizerScreen(modifier = Modifier.fillMaxHeight(0.8f), viewModel = viewModel())
+    EqualizerUI(modifier = Modifier.fillMaxHeight(0.8f), viewModel = viewModel())
 }

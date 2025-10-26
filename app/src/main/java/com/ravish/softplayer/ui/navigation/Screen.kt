@@ -4,4 +4,8 @@ package com.ravish.softplayer.ui.navigation
 sealed class Screen(val route: String) {
     object PlayerMainScreen : Screen("player_main_screen")
     object SongLoadingScreen : Screen("song_loading_screen")
+
+    object TrackListScreen : Screen("track_list_screen")
+
+    object EqualizerScreen : Screen("equalizer_screen")
 }
