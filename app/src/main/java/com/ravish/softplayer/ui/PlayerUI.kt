@@ -29,14 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.R
+import com.ravish.softplayer.data.model.EqualizerUIState
 import com.ravish.softplayer.data.model.MediaUpdateUIState
 import com.ravish.softplayer.data.model.PlayBackUIState
 import com.ravish.softplayer.data.model.SliderUIState
 import com.ravish.softplayer.data.model.SongCategoryUIState
 import com.ravish.softplayer.data.model.SongInfoUIState
+import com.ravish.softplayer.data.model.TrackListUIState
 import com.ravish.softplayer.ui.equalizerview.EqualizerScreen
 import com.ravish.softplayer.ui.theme.TransparentColor
 import com.ravish.softplayer.ui.theme.dialogBackground
+import com.ravish.softplayer.ui.trackui.TrackUI
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,10 +50,11 @@ import javax.inject.Inject
 @Composable
 fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
-    val audioList by viewModel.mediaUpdateUIState!!.mediaItemsUpdateState.collectAsStateWithLifecycle()
-    val backgroundImage by viewModel.songInfoUIState!!.playerBackgroundState.collectAsStateWithLifecycle()
-    val categoryName by viewModel.songCategoryUIState!!.categoryNameState.collectAsStateWithLifecycle()
-    val equalizerState by viewModel.openEqualizerState.collectAsStateWithLifecycle()
+    val audioList by viewModel.mediaUpdateUIState.mediaItemsUpdateState.collectAsStateWithLifecycle()
+    val backgroundImage by viewModel.songInfoUIState.playerBackgroundState.collectAsStateWithLifecycle()
+    val categoryName by viewModel.songCategoryUIState.categoryNameState.collectAsStateWithLifecycle()
+    val equalizerState by viewModel.equalizerUIState.openEqualizerState.collectAsStateWithLifecycle()
+    val trackListState by viewModel.trackListUIState.openTrackListStatus.collectAsStateWithLifecycle()
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
             modifier = Modifier
@@ -72,16 +76,11 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-
             val modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
 
-            DrawSongHeader(
-                viewModel = viewModel,
-                modifier = modifier.weight(1f),
-                categoryName
-            )
+
 
             Box(modifier = Modifier
                 .weight(6f)) {
@@ -89,14 +88,20 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
+                        DrawSongHeader(
+                            viewModel = viewModel,
+                            modifier = modifier.weight(1f),
+                            categoryName
+                        )
+
                         DrawSongTileUI(
                             viewModel = viewModel,
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(3f)
                                 .padding(0.dp),
                             audioList = audioList
                         )
-                        DrawPayerView(viewModel, modifier = modifier.weight(1f))
+                        DrawPayerView(viewModel, modifier = modifier.weight(3f))
                     }
 
                 if(equalizerState) {
@@ -107,6 +112,12 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
                         enabled = false) { }
                     EqualizerScreen(modifier = Modifier.fillMaxSize().background(dialogBackground)
                         , viewModel = viewModel)
+                }
+
+                if(trackListState) {
+                    TrackUI(viewModel = viewModel,
+                        modifier = Modifier.fillMaxSize().background(dialogBackground)
+                        , audioList = audioList)
                 }
             }
 
@@ -119,7 +130,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
             )
         }
 
-        with(viewModel.openEqualizerState.collectAsStateWithLifecycle().value) {
+        with(viewModel.equalizerUIState!!.openEqualizerState.collectAsStateWithLifecycle().value) {
             if (this) {
 
              //DrawEqualizerDialog(modifier = Modifier.fillMaxWidth(), viewModel)
@@ -135,7 +146,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
 @SuppressLint("ViewModelConstructorInComposable")
 @RequiresApi(Build.VERSION_CODES.Q)
-@Preview(showBackground = false)
+@Preview(showBackground = true)
 @Composable
 fun DrawPlayerUIPreview() {
     DrawPlayerUI(viewModel = FakePlayerViewModel(
@@ -169,6 +180,18 @@ class FakePlayerViewModel @Inject constructor(
         playBackUIState = PlayBackUIState(
             isPlayingState = MutableStateFlow(false).asStateFlow(),
             playEndedState = MutableStateFlow(false).asStateFlow()
+        )
+
+        trackListUIState = TrackListUIState(
+            openTrackListStatus = MutableStateFlow(false).asStateFlow(),
+            filterTrack = MutableStateFlow("")
+        )
+
+        equalizerUIState = EqualizerUIState(
+            openEqualizerState = MutableStateFlow(false).asStateFlow(),
+            enableEqualizerState = MutableStateFlow(false).asStateFlow(),
+            updatePresetBand = MutableStateFlow<List<Float>>(emptyList()).asStateFlow(),
+            presetName = MutableStateFlow("Flat").asStateFlow()
         )
     }
 }
