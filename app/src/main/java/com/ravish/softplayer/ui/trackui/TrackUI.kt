@@ -45,6 +45,7 @@ import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.R
 import com.ravish.softplayer.Utils
 import com.ravish.softplayer.ui.FakePlayerViewModel
+import com.ravish.softplayer.ui.playercontrol.PlayerControl2
 import com.ravish.softplayer.ui.theme.HighLightColor
 import com.ravish.softplayer.ui.theme.TrackAlbumTextColor
 import com.ravish.softplayer.ui.theme.TrackArtistTextColor
@@ -66,6 +67,7 @@ fun TrackUI(
     var songList by remember { mutableStateOf(audioList) }
     val filterTrack by viewModel.trackListUIState.filterTrack.collectAsStateWithLifecycle()
 
+
     LaunchedEffect(filterTrack) {
         songList = audioList.filter { it.title.contains(filterTrack, ignoreCase = true) }
     }
@@ -74,44 +76,61 @@ fun TrackUI(
         Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 30.dp)
+            .padding(top = 20.dp, bottom = 50.dp)
     ) {
 
-        SearchBar(viewModel = viewModel,
-            modifier = Modifier.fillMaxWidth())
+        SearchBar(
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
 
         if (songList.isNotEmpty()) {
             val lazyListState = rememberLazyListState()
 
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = contentPadding,
-                state = lazyListState,
-            ) {
-                items(
-                    items = songList,
-                    key = { song -> song.id }
-                ) { song ->
-                    var bitmap by remember(song.contentUri) { mutableStateOf<Bitmap?>(null) }
-                    var isLoading by remember(song.contentUri) { mutableStateOf(true) }
-                    if (bitmap == null && isLoading) { // Basic attempt to load once
-                        bitmap = Utils.getImage(LocalContext.current, song.contentUri)
-                    }
-
-                    val imageBitmap = remember(bitmap) { bitmap?.asImageBitmap() }
-                    TrackItem(modifier = Modifier
-                        .height(itemHeight)
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .weight(8f)) {
+                LazyColumn(
+                    modifier = modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable {
-                            Log.d("TrackUI", "TrackItem: ${song.title}")
-                            viewModel.playSelected(audioList.indexOf(song))
-                        }, itemHeight = itemHeight, song = song, imageBitmap = imageBitmap)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = contentPadding,
+                    state = lazyListState,
+                ) {
+                    items(
+                        items = songList,
+                        key = { song -> song.id }
+                    ) { song ->
+                        var bitmap by remember(song.contentUri) { mutableStateOf<Bitmap?>(null) }
+                        var isLoading by remember(song.contentUri) { mutableStateOf(true) }
+                        if (bitmap == null && isLoading) { // Basic attempt to load once
+                            bitmap = Utils.getImageSmall(LocalContext.current, song.contentUri)
+                        }
+
+                        val imageBitmap = remember(bitmap) { bitmap?.asImageBitmap() }
+                        TrackItem(
+                            modifier = Modifier
+                                .height(itemHeight)
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    Log.d("TrackUI", "TrackItem: ${song.title}")
+                                    viewModel.playSelected(audioList.indexOf(song), song)
+                                }, itemHeight = itemHeight, song = song, imageBitmap = imageBitmap
+                        )
+                    }
                 }
             }
+
+            PlayerControl2(
+                viewModel = viewModel,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            )
         } else {
             Box(
                 modifier = modifier
@@ -142,11 +161,10 @@ fun TrackItem(
     isPlaying: Boolean = false
 ) {
     Row(
-   modifier = modifier
+        modifier = modifier
     ) {
-        if (imageBitmap != null) {
             Image(
-                bitmap = imageBitmap,
+                bitmap = imageBitmap!!,
                 modifier = Modifier.weight(1f),
                 contentDescription = song.title ?: "Song artwork",
                 contentScale = ContentScale.Crop
@@ -180,21 +198,6 @@ fun TrackItem(
                     color = if (isPlaying) HighLightColor else TrackArtistTextColor
                 )
             }
-
-        } else {
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.empty_song_list),
-                    contentDescription = "No artwork available",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(0.6f)
-                )
-            }
-        }
     }
 }
 
@@ -213,52 +216,27 @@ fun TrackUIPreview_LazyColumn_NotEmpty() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = false, widthDp = 360, heightDp = 240)
+@Preview(showBackground = false, widthDp = 1080, heightDp = 1920)
 @Composable
 fun DrawSongTileUIPreview_LazyRow_NotEmpty() {
-    val sampleSongs = listOf(
-        SongItem(
-            1L,
-            "Song Title 1",
-            "Artist 1",
-            "Album 1",
+    val songList = ArrayList<SongItem>()
+    for(i in 0..20) {
+        songList.add(SongItem(
+            i.toLong(),
+            "Song Title $i",
+            "Artist $i",
+            "Album $i",
             180000L,
-            "Fake Uri 1",
+            "Fake Uri $i",
             Uri.parse("content://media/external/audio/media/1")
-        ),
-        SongItem(
-            2L,
-            "Song Title 2",
-            "Artist 2",
-            "Album 2",
-            240000L,
-            "Fake Uri 2",
-            Uri.parse("content://media/external/audio/media/2")
-        ),
-        SongItem(
-            3L,
-            "A Very Long Song Title That Might Wrap Or Be Truncated",
-            "Artist 3",
-            "Album 3",
-            200000L,
-            "Fake Uri 3",
-            Uri.parse("content://media/external/audio/media/3")
-        ),
-        SongItem(
-            4L,
-            "Song 4",
-            "Artist 4",
-            "Album 4",
-            150000L,
-            "Fake Uri 4",
-            Uri.parse("content://media/external/audio/media/4")
-        )
-    )
+        ))
+    }
+
     MaterialTheme {
         TrackUI(
             viewModel = FakePlayerViewModel(),
             modifier = Modifier.fillMaxSize(),
-            audioList = sampleSongs
+            audioList = songList
         )
     }
 }

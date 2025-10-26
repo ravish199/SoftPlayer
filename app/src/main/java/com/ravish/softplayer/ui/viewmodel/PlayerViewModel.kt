@@ -2,11 +2,13 @@ package com.ravish.softplayer.ui.viewmodel
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import com.ravish.player.MediaFileManager
 import com.ravish.player.MusicPlayer
+import com.ravish.player.data.model.SongItem
 import com.ravish.player.usecases.Pause
 import com.ravish.player.usecases.Play
 import com.ravish.player.usecases.PlayNext
@@ -17,15 +19,15 @@ import com.ravish.player.usecases.SetRepeatMode
 import com.ravish.player.usecases.Stop
 import com.ravish.player.usecases.UpdateShuffleState
 import com.ravish.softplayer.data.EqualizerSettingsManager
-import com.ravish.softplayer.data.model.EqualizerUIState
-import com.ravish.softplayer.data.model.MediaUpdateUIState
-import com.ravish.softplayer.data.model.PlayBackUIState
+import com.ravish.softplayer.data.model.uistate.EqualizerUIState
+import com.ravish.softplayer.data.model.uistate.MediaUpdateUIState
+import com.ravish.softplayer.data.model.uistate.PlayBackUIState
 import com.ravish.softplayer.data.model.RepeatMode
 import com.ravish.softplayer.data.model.SliderUIState
-import com.ravish.softplayer.data.model.SongCategoryUIState
-import com.ravish.softplayer.data.model.SongInfoUIState
+import com.ravish.softplayer.data.model.uistate.SongCategoryUIState
+import com.ravish.softplayer.data.model.uistate.SongInfoUIState
 import com.ravish.softplayer.data.model.SoundEffectUseCases
-import com.ravish.softplayer.data.model.TrackListUIState
+import com.ravish.softplayer.data.model.uistate.TrackListUIState
 import com.ravish.softplayer.data.model.UseCases
 import com.ravish.soundeffects.AudioEffectManager
 import com.ravish.soundeffects.data.EqualizerPreset
@@ -33,10 +35,8 @@ import com.ravish.soundeffects.usecases.EnableEqualizer
 import com.ravish.soundeffects.usecases.InitializeEqualizer
 import com.ravish.soundeffects.usecases.SetBandLevel
 import com.ravish.soundeffects.usecases.UpdateBandLevels
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -55,8 +55,8 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     var sliderUIState: SliderUIState? = null
     lateinit var mediaUpdateUIState: MediaUpdateUIState
     lateinit var trackListUIState: TrackListUIState
-    var playBackUIState: PlayBackUIState? = null
-    private var playerBackgroundState = MutableStateFlow<Bitmap?>(null)
+   lateinit var playBackUIState: PlayBackUIState
+    private var _playerBackgroundState = MutableStateFlow<Bitmap?>(null)
     private var _enableListMode = MutableStateFlow(false)
     var enableListMode = _enableListMode.asStateFlow()
 
@@ -64,6 +64,7 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     private var _filterTrack = MutableStateFlow("")
 
     private var _openTrackList = MutableStateFlow(false)
+    private var _playingTrack = MutableStateFlow<SongItem?>(null)
 
 
 
@@ -86,10 +87,12 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     fun openTrackList() {
+        Log.d("PlayerViewModel", "openTrackList:${_openTrackList.value}")
         _openTrackList.value = true
     }
 
     fun closeTrackList() {
+        Log.d("PlayerViewModel", "openTrackList:${_openTrackList.value}")
         _openTrackList.value = false
     }
 
@@ -103,13 +106,14 @@ _filterTrack.value = query
     }
 
 
-    fun setPlayerBackground(bitmap: Bitmap?) {
-        playerBackgroundState.value = bitmap
+    fun setPlayerBackground(bitmap: Bitmap) {
+        _playerBackgroundState.value = bitmap
     }
 
 
-    fun playSelected(index: Int) {
+    fun playSelected(index: Int, song: SongItem? = null) {
         useCases?.playSelected?.let { it(index) }
+        _playingTrack.value = song
     }
 
     fun play() {
@@ -265,7 +269,8 @@ _filterTrack.value = query
     private fun initPlayBackUIState(musicPlayer: MusicPlayer) {
         playBackUIState = PlayBackUIState(
             musicPlayer.isPlayingUpdater.asStateFlow(),
-            musicPlayer.onPlayEndedUpdater.asStateFlow()
+            musicPlayer.onPlayEndedUpdater.asStateFlow(),
+            playingTrack = _playingTrack.asStateFlow()
         )
     }
 
@@ -300,8 +305,10 @@ _filterTrack.value = query
     private fun initSongInfoUIState(musicPlayer: MusicPlayer) {
         songInfoUIState = SongInfoUIState(
             musicPlayer.songTitleState.asStateFlow(),
+            musicPlayer.songAlbumState.asStateFlow(),
             musicPlayer.songArtistState.asStateFlow(),
-            playerBackgroundState.asStateFlow()
+            musicPlayer.songUriState.asStateFlow(),
+            _playerBackgroundState.asStateFlow()
         )
     }
 

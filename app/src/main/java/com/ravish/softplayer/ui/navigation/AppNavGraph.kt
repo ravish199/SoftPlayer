@@ -42,6 +42,10 @@ fun AppNavGraph(viewModel: PlayerViewModel,
             PlayerMainScreen(viewModel)
         }
 
+        composable(route = Screen.TrackListScreen.route) {
+            TrackListScreen(viewModel)
+        }
+
     }
 }
 

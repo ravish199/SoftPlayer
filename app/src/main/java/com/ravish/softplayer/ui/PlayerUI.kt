@@ -23,23 +23,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravish.player.data.model.SongItem
 import com.ravish.softplayer.R
-import com.ravish.softplayer.data.model.EqualizerUIState
-import com.ravish.softplayer.data.model.MediaUpdateUIState
-import com.ravish.softplayer.data.model.PlayBackUIState
+import com.ravish.softplayer.Utils
+import com.ravish.softplayer.data.model.uistate.EqualizerUIState
+import com.ravish.softplayer.data.model.uistate.MediaUpdateUIState
+import com.ravish.softplayer.data.model.uistate.PlayBackUIState
 import com.ravish.softplayer.data.model.SliderUIState
-import com.ravish.softplayer.data.model.SongCategoryUIState
-import com.ravish.softplayer.data.model.SongInfoUIState
-import com.ravish.softplayer.data.model.TrackListUIState
+import com.ravish.softplayer.data.model.uistate.SongCategoryUIState
+import com.ravish.softplayer.data.model.uistate.SongInfoUIState
+import com.ravish.softplayer.data.model.uistate.TrackListUIState
 import com.ravish.softplayer.ui.equalizerview.EqualizerScreen
+import com.ravish.softplayer.ui.playercontrol.DrawPlayerControl
 import com.ravish.softplayer.ui.theme.TransparentColor
 import com.ravish.softplayer.ui.theme.dialogBackground
-import com.ravish.softplayer.ui.trackui.TrackUI
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,10 +63,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .blur(30.dp),
-            bitmap = (backgroundImage ?: BitmapFactory.decodeResource(
-                LocalResources.current,
-                R.drawable.app_background
-            )).asImageBitmap(),
+            bitmap = Utils.getImage(LocalContext.current, backgroundImage),
             contentDescription = "Song Name",
             contentScale = ContentScale.FillBounds,
             alpha = 1f
@@ -83,7 +82,7 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
 
 
             Box(modifier = Modifier
-                .weight(6f)) {
+                .weight(7f)) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceBetween
@@ -114,11 +113,11 @@ fun DrawPlayerUI(viewModel: PlayerViewModel) {
                         , viewModel = viewModel)
                 }
 
-                if(trackListState) {
+          /*      if(trackListState) {
                     TrackUI(viewModel = viewModel,
                         modifier = Modifier.fillMaxSize().background(dialogBackground)
                         , audioList = audioList)
-                }
+                }*/
             }
 
             DrawPlayerControl(
@@ -164,7 +163,9 @@ class FakePlayerViewModel @Inject constructor(
         )
         songInfoUIState = SongInfoUIState(
             songTitleState = MutableStateFlow("Song Title").asStateFlow(),
+            albumState   = MutableStateFlow("Album Name").asStateFlow(),
             artistsState = MutableStateFlow("Artist Name").asStateFlow(),
+            imageUriState = MutableStateFlow(null).asStateFlow(),
             playerBackgroundState = MutableStateFlow(null).asStateFlow()
         )
         sliderUIState = SliderUIState(
@@ -179,7 +180,8 @@ class FakePlayerViewModel @Inject constructor(
         )
         playBackUIState = PlayBackUIState(
             isPlayingState = MutableStateFlow(false).asStateFlow(),
-            playEndedState = MutableStateFlow(false).asStateFlow()
+            playEndedState = MutableStateFlow(false).asStateFlow(),
+            playingTrack = MutableStateFlow(null).asStateFlow()
         )
 
         trackListUIState = TrackListUIState(

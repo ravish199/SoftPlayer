@@ -1,4 +1,4 @@
-package com.ravish.softplayer.data.model
+package com.ravish.softplayer.data.model.uistate
 
 import kotlinx.coroutines.flow.StateFlow
 

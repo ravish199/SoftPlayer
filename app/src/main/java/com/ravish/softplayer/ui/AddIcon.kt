@@ -34,7 +34,7 @@ fun AddIcon(modifier: Modifier, icon: Int, selected: Boolean = false) {
                 modifier = modifier.size(100.dp).padding(10.dp),
                 contentDescription = "Previous",
                 painter = painterResource(id = icon),
-                tint = if (selected) HighLightColor else NormalStateColor
+                tint = if (selected) ButtonContainerColor else NormalStateColor
             )
         }
 

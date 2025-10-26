@@ -1,7 +1,5 @@
-package com.ravish.softplayer.data.model
+package com.ravish.softplayer.data.model.uistate
 
-import android.graphics.Bitmap
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 data class TrackListUIState(
