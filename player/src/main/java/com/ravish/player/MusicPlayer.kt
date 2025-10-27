@@ -27,6 +27,9 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
     var selectedIndex = MutableStateFlow(0)
     var songTitleState = MutableStateFlow("")
     var songArtistState = MutableStateFlow("")
+    var songUriState = MutableStateFlow<Uri?>(null)
+
+    var songAlbumState = MutableStateFlow("")
     var categoryNameState = MutableStateFlow("All Songs")
 
     private var exoPlayer: ExoPlayer? = null
@@ -41,7 +44,7 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
     private var currentPositionUpdateJob: Job? = null
     private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-     var onPlayEndedUpdater = MutableStateFlow(false)
+    var onPlayEndedUpdater = MutableStateFlow(false)
 
 
     private var _songSeekValueState = MutableStateFlow(0f)
@@ -110,9 +113,11 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
 
                         selectedIndex.value = getPlayer()?.currentMediaItemIndex ?: 0
                         if (mediaItemsState.value.isNotEmpty()) {
-                            songTitleState.value = mediaItemsState.value[selectedIndex.value].title
-                            songArtistState.value =
-                                mediaItemsState.value[selectedIndex.value].artist ?: ""
+                            val song = mediaItemsState.value[selectedIndex.value]
+                            songTitleState.value = song.title
+                            songArtistState.value = song.artist ?: ""
+                            songAlbumState.value = song.album ?: ""
+                            songUriState.value = song.contentUri
                         }
 
                         super.onTracksChanged(tracks)
@@ -286,11 +291,11 @@ class MusicPlayer(private val context: Context) : PlaybackActionDataSource, Medi
 
     override fun play() {
         playerScope.launch {
-                exoPlayer?.playWhenReady = true
-                if (songSeekValueState.value > 0) {
-                    Log.d("PlayerControlUI:", "seek to:${songSeekValueState.value}")
-                    seekTo((songSeekValueState.value * 1000L).toLong())
-                }
+            exoPlayer?.playWhenReady = true
+            if (songSeekValueState.value > 0) {
+                Log.d("PlayerControlUI:", "seek to:${songSeekValueState.value}")
+                seekTo((songSeekValueState.value * 1000L).toLong())
+            }
         }
     }
 

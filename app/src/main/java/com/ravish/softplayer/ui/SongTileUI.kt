@@ -78,6 +78,7 @@ fun DrawSongTileUI(
     ), // Padding for the LazyRow content
 ) {
 
+    val context = LocalContext.current
     var oldIndex = 0
     if (audioList.isNotEmpty()) {
         val lazyListState = rememberLazyListState() // Useful if you need to control scroll position
@@ -134,7 +135,7 @@ fun DrawSongTileUI(
                         .clickable {
                             imageBitmap?.asAndroidBitmap()?.let { androidBmp ->
                                 viewModel.setPlayerBackground(androidBmp)
-                                viewModel.playSelected(audioList.indexOf(song))
+                                viewModel.playSelected(audioList.indexOf(song), song)
                             }
                         },
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)

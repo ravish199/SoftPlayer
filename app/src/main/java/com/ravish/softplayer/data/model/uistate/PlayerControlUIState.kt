@@ -1,5 +1,6 @@
-package com.ravish.softplayer.data.model
+package com.ravish.softplayer.data.model.uistate
 
+import com.ravish.softplayer.data.model.RepeatMode
 import kotlinx.coroutines.flow.StateFlow
 
 data class PlayerControlUIState(

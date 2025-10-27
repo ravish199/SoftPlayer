@@ -8,8 +8,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ravish.softplayer.ui.PlayerMainScreen
-import com.ravish.softplayer.ui.SongLoadingScreen
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 /**
@@ -21,12 +19,13 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun AppNavGraph(viewModel: PlayerViewModel,
-                modifier: Modifier = Modifier,
-                navController: NavHostController = rememberNavController(),
-                startDestination: String = Screen.SongLoadingScreen.route,
+fun AppNavGraph(
+    viewModel: PlayerViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.SongLoadingScreen.route,
 
-                ) {
+    ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -40,6 +39,14 @@ fun AppNavGraph(viewModel: PlayerViewModel,
         // Home Screen
         composable(route = Screen.PlayerMainScreen.route) {
             PlayerMainScreen(viewModel)
+        }
+
+        composable(route = Screen.TrackListScreen.route) {
+            TrackListScreen(viewModel)
+        }
+
+        composable(route = Screen.EqualizerScreen.route) {
+            EqualizerScreen(viewModel)
         }
 
     }

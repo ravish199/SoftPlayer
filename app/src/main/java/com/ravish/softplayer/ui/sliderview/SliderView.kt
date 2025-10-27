@@ -38,7 +38,7 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 
 @Composable
-fun SliderView(viewModel: PlayerViewModel, modifier: Modifier) {
+fun SliderView(viewModel: PlayerViewModel, modifier: Modifier, onlySlider: Boolean = false) {
     Log.d("SliderView", "SliderView")
     val totalDuration by viewModel.sliderUIState!!.totalDurationState.collectAsStateWithLifecycle(
         initialValue = 0L
@@ -52,13 +52,15 @@ fun SliderView(viewModel: PlayerViewModel, modifier: Modifier) {
         Log.d("SliderView", "totalDuration:$totalDuration")
         Log.d("SliderView", "currentPosition:$currentPosition")
 
-        DrawCurrentTimeText(
-            currentPosition,
-            modifier = Modifier
-                .wrapContentSize()
-                .weight(0.2f)
-                .padding(start = 10.dp)
-        )
+        if(!onlySlider) {
+            DrawCurrentTimeText(
+                currentPosition,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .weight(0.2f)
+                    .padding(start = 10.dp)
+            )
+        }
 
         DrawSlider(
             viewModel = viewModel,
@@ -70,12 +72,14 @@ fun SliderView(viewModel: PlayerViewModel, modifier: Modifier) {
                 .weight(1f)
         )
 
-        DrawSongDurationText(
-            modifier = Modifier
-                .wrapContentSize()
-                .weight(0.2f)
-                .padding(end = 10.dp), totalDuration
-        )
+        if(!onlySlider) {
+            DrawSongDurationText(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .weight(0.2f)
+                    .padding(end = 10.dp), totalDuration
+            )
+        }
 
 
     }
@@ -181,8 +185,8 @@ fun DrawSlider(
                 interactionSource = interactionSource, // Pass the SAME source here
                 thumbColor = Color.Transparent,
                 iconColor = Color.White,
-                baseSize = 30.dp,
-                iconSize = 20.dp,
+                baseSize = 16.dp,
+                iconSize = 12.dp,
                 baseElevation = 0.dp,
                 iconElevation = 0.01.dp
             )
@@ -193,7 +197,7 @@ fun DrawSlider(
                 sliderState = sliderState,
                 activeTrackColor = ActiveTrackColor,  // From your theme
                 inactiveTrackColor = InactiveTrackColor, // From your theme
-                desiredTrackHeight = 8.dp,
+                desiredTrackHeight = 4.dp,
             )
         },
 

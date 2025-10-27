@@ -1,4 +1,4 @@
-package com.ravish.softplayer.ui
+package com.ravish.softplayer.ui.playercontrol
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -51,7 +51,7 @@ fun DrawPlayerControl(viewModel: PlayerViewModel, modifier: Modifier) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AddIcon(
+        _root_ide_package_.com.ravish.softplayer.ui.AddIcon(
             modifier = Modifier
                 .size(50.dp)
                 .clickable {
@@ -60,7 +60,7 @@ fun DrawPlayerControl(viewModel: PlayerViewModel, modifier: Modifier) {
                 }, icon = R.drawable.icon_shuffel, selected = shuffleState
         )
 
-        AddIcon1(
+        _root_ide_package_.com.ravish.softplayer.ui.AddIcon1(
             modifier = Modifier
                 .size(50.dp)
                 .clickable {
@@ -71,7 +71,7 @@ fun DrawPlayerControl(viewModel: PlayerViewModel, modifier: Modifier) {
         DrawPlayButton(viewModel = viewModel, modifier = Modifier)
 
 
-        AddIcon1(
+        _root_ide_package_.com.ravish.softplayer.ui.AddIcon1(
             modifier = Modifier
                 .size(50.dp)
                 .clickable {
@@ -79,7 +79,7 @@ fun DrawPlayerControl(viewModel: PlayerViewModel, modifier: Modifier) {
                 }, icon = R.drawable.icon_next_new2
         )
 
-        AddIcon(
+        _root_ide_package_.com.ravish.softplayer.ui.AddIcon(
             modifier = Modifier
                 .size(50.dp)
                 .clickable {
@@ -104,7 +104,7 @@ fun getRepeatState(): Pair<RepeatMode, Int> {
 fun DrawPlayButton(viewModel: PlayerViewModel, modifier: Modifier) {
     val isPlayingState by viewModel.playBackUIState!!.isPlayingState.collectAsStateWithLifecycle()
     Log.d("DrawPlayButton", "isPlayingState: $isPlayingState")
-    AddIcon2(
+    _root_ide_package_.com.ravish.softplayer.ui.AddIcon2(
         modifier = modifier
             .size(100.dp),
         icon = if (isPlayingState) R.drawable.icon_pause_new
