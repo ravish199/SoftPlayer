@@ -35,19 +35,19 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 @Composable
 fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
-
+    viewModel.getPreset()
     var presetExpanded by remember { mutableStateOf(false) }
     val presetList = viewModel.getPresetData()
     /*  if(presetList.isNotEmpty()) {
           viewModel.updatePresetBands(presetName = presetList[0].name, levels = presetList[0].bandLevels)
       }*/
-    val presetName = viewModel.equalizerUIState!!.presetName.collectAsStateWithLifecycle().value.ifEmpty { "Flat" }
-    val selectedPresetName = remember { mutableStateOf(presetName) }
-    val isEnabled by viewModel.equalizerUIState!!.enableEqualizerState.collectAsStateWithLifecycle()
+    val presetName = viewModel.equalizerUIState.presetName.collectAsStateWithLifecycle().value.ifEmpty { "Flat" }
+    val isEnabled by viewModel.equalizerUIState.enableEqualizerState.collectAsStateWithLifecycle()
+    val updatePresetBand by viewModel.equalizerUIState.updatePresetBand.collectAsStateWithLifecycle()
     LaunchedEffect(presetName) {
+        Log.d("PresetUI", "presetName1: $presetName")
         viewModel.updatePresetBands(
-            presetName = presetName,
-            levels = presetList[presetList.map { it.name }.indexOf(presetName)].bandLevels
+            levels = updatePresetBand
         )
     }
 
@@ -74,7 +74,7 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
 
             Text(
                 modifier = textModifier.weight(2f),
-                text = selectedPresetName.value,
+                text = presetName,
                 style = Typography.labelLarge,
                 color = if (isEnabled) Color.Black else Color.LightGray
             )
@@ -113,9 +113,9 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
                         )
                     },
                     onClick = {
-                        selectedPresetName.value = it.name
                         presetExpanded = false
-                        viewModel.updatePresetBands(it.name, it.bandLevels)
+                        viewModel.updatePresetBands( it.bandLevels)
+                        viewModel.savePreset(it.name)
                     })
             }
         }

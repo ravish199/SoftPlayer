@@ -2,6 +2,7 @@ package com.ravish.softplayer.ui.viewmodel
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,6 +38,7 @@ import com.ravish.soundeffects.usecases.SetBandLevel
 import com.ravish.soundeffects.usecases.UpdateBandLevels
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -152,14 +154,11 @@ _filterTrack.value = query
 
     fun initializeEqualizer() {
         viewModelScope.launch {
-            soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
+            if(equalizerSettingsManager?.eqEnabledFlow?.first() == false) {
+                soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
+            }
             _savedEqualizerBandlevels.value = equalizerSettingsManager?.eqBandLevelsFlow?.first()
             _enableEqualizerState.value = equalizerSettingsManager?.eqEnabledFlow?.first() ?: false
-          //  _presetName.value = equalizerSettingsManager?.presetNameFlow?.first().toString()
-            Log.d("PlayerViewModel", "initializeEqualizer: ${_presetName.value}")
-            Log.d("PlayerViewModel", "initializeEqualizer: ${equalizerSettingsManager?.presetNameFlow.hashCode()}")
-   /*         soundEffectUseCases?.enableEqualizer?.invoke(savedEnabledState ?: false)
-            soundEffectUseCases?.updateBandLevel?.invoke(savedLevels?.toTypedArray() ?: emptyArray())*/
         }
 
     }
@@ -179,10 +178,8 @@ _filterTrack.value = query
     }
 
 
-     fun updatePresetBands(presetName: String, levels: List<Float>) {
-         Log.d("PlayerViewModel", "presetName: $presetName")
+     fun updatePresetBands(levels: List<Float>) {
         Log.d("PlayerViewModel", "updatePresetBands: $levels")
-         _presetName.value = presetName
         _updatePresetBand.value = levels
         levels.forEachIndexed { index, preset ->
             setBandLevel(index, preset)
@@ -190,10 +187,19 @@ _filterTrack.value = query
 
     }
 
-    fun savePreset(presetName: String) {
+
+     fun savePreset(presetName: String) {
         viewModelScope.launch {
-            // equalizerSettingsManager?.saveBandLevels(levels)
             equalizerSettingsManager?.savePreset(presetName)
+        }
+    }
+
+    fun getPreset() {
+        viewModelScope.launch {
+            equalizerSettingsManager?.presetNameFlow?.collect {
+                _presetName.value = it
+            }
+
         }
     }
 
@@ -247,6 +253,25 @@ _filterTrack.value = query
         audioEffectManager?.let {
             initAudioEffects(audioEffectManager = it)
         }
+
+        initEqualizer()
+
+    }
+
+    private fun initEqualizer() {
+        viewModelScope.launch {
+            if(equalizerSettingsManager?.eqEnabledFlow?.first() == true) {
+                soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
+                val presetName = equalizerSettingsManager?.presetNameFlow?.first()
+                with(getPresetData()) {
+                    _updatePresetBand.value = this[this.map { it.name }.indexOf(presetName)].bandLevels
+                    updatePresetBands(
+                        levels = _updatePresetBand.value
+                    )
+                }
+            }
+        }
+
     }
 
     private fun initEqualizerUiState() {
