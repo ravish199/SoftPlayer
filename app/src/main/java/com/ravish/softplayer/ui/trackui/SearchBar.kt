@@ -16,8 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,14 +31,16 @@ fun SearchBar(viewModel: PlayerViewModel, modifier: Modifier) {
     var searchClickStatus by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier.drawShadow(shadowType = ShadowType.BOTTOM,
-            shadowWidth = 5.dp),
+        modifier = modifier.drawShadow(
+            shadowType = ShadowType.BOTTOM,
+            shadowWidth = 5.dp
+        ),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AddIcon2(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(top = 8.dp, bottom=8.dp),
+                .padding(top = 8.dp, bottom = 8.dp),
             onClick = {
                 viewModel.closeTrackList()
                 viewModel.filterTrackList("")

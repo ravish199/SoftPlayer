@@ -19,12 +19,13 @@ import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun AppNavGraph(viewModel: PlayerViewModel,
-                modifier: Modifier = Modifier,
-                navController: NavHostController = rememberNavController(),
-                startDestination: String = Screen.SongLoadingScreen.route,
+fun AppNavGraph(
+    viewModel: PlayerViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.SongLoadingScreen.route,
 
-                ) {
+    ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
