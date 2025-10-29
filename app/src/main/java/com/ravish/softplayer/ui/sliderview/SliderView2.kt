@@ -59,7 +59,7 @@ fun SliderView2(
                 activeTrackColor = if(enabled) ActiveTrackColor else InactiveTrackColor,  // From your theme
                 inactiveTrackColor = if(enabled) ActiveTrackColor_Semi_transparent else
                     InactiveTrackColor_Semi_transparent, // From your theme
-                desiredTrackHeight = 6.dp,
+                desiredTrackHeight = 4.dp,
             )
         },
     )

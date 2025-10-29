@@ -17,4 +17,11 @@ interface AudioEffectManager {
     fun updateBandLevels(levels: Array<Float>)
 
     fun getPresetData():List<EqualizerPreset>
+
+    fun enableReverb(enable: Boolean)
+
+    fun getReverbData():List<String>
+
+    fun setReverb(presetIndex: Int)
+
 }

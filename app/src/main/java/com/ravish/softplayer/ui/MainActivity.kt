@@ -52,9 +52,12 @@ class MainActivity : ComponentActivity() {
     private var loadMainScreenState = mutableStateOf(false)
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        arrayOf(Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
+        arrayOf(Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS)
     } else {
-        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS)
     }
 
     private val requestMultiplePermissionsLauncher =

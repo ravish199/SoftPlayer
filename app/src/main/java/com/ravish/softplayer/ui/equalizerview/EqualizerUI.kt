@@ -1,5 +1,6 @@
 package com.ravish.softplayer.ui.equalizerview
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -27,15 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ravish.softplayer.R
+import com.ravish.softplayer.ui.AddIcon
 import com.ravish.softplayer.ui.AddIcon2
+import com.ravish.softplayer.ui.FakePlayerViewModel
 import com.ravish.softplayer.ui.theme.ButtonContainerColor
 import com.ravish.softplayer.ui.theme.ButtonContainerColorSemiTransparent
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
@@ -49,6 +48,7 @@ fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
     var preamp by remember { mutableStateOf(0f) }
     var snapBands by remember { mutableStateOf(true) }
     val sizeRatio = 0.5f
+    val presetNameState = viewModel.equalizerUIState.presetName.collectAsStateWithLifecycle().value.ifEmpty { "Flat" }
 
     Column(
         modifier = modifier.padding(top = 30.dp, start = 8.dp, end = 8.dp)
@@ -89,6 +89,8 @@ fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
                 modifier = Modifier
                     .constrainAs(enableSwitch) {
                         end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
                     }
                     .scale(0.6f),
 
@@ -107,13 +109,14 @@ fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
         // Presets row
         PresetUI(modifier = Modifier, viewModel = viewModel)
 
+
         // Bands area
 
         // Snap bands toggle
 
         Row(
             modifier = Modifier
-                .fillMaxHeight(0.7f)
+                .fillMaxHeight(0.5f)
                 .fillMaxWidth(), // Give the container a fixed height for preview
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
@@ -125,36 +128,44 @@ fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            Text("Snap bands", modifier = Modifier.weight(1f), textAlign = TextAlign.End)
-            Spacer(Modifier.width(8.dp))
-            Switch(
-                modifier = Modifier.scale(0.6f),
-                checked = snapBands,
-                onCheckedChange = { snapBands = it },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = ButtonContainerColor,
-                    checkedTrackColor = ButtonContainerColorSemiTransparent
-                )
-            )
-        }
 
         Spacer(Modifier.height(16.dp))
 
+        ReverbUI(modifier = Modifier, viewModel = viewModel)
+
+
+        Spacer(Modifier.height(8.dp))
+
+        /* Row(
+             modifier = Modifier.fillMaxWidth(),
+             verticalAlignment = Alignment.CenterVertically,
+             horizontalArrangement = Arrangement.End
+         ) {
+             Text("Snap bands", modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+             Spacer(Modifier.width(8.dp))
+             Switch(
+                 modifier = Modifier.scale(0.6f),
+                 checked = snapBands,
+                 onCheckedChange = { snapBands = it },
+                 colors = SwitchDefaults.colors(
+                     checkedThumbColor = ButtonContainerColor,
+                     checkedTrackColor = ButtonContainerColorSemiTransparent
+                 )
+             )
+         }
+
+         Spacer(Modifier.height(16.dp))*/
+
         // Buttons: Delete Reset Save
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            TextButton(onClick = { /*delete*/ }) {
+        /* Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+             TextButton(onClick = { *//*delete*//* }) {
                 Text(
                     "DELETE",
                     color = primary,
                     fontWeight = FontWeight.Bold
                 )
             }
-            TextButton(onClick = { /*reset*/ }) {
+            TextButton(onClick = { *//*reset*//* }) {
                 Text(
                     "RESET",
                     color = Color.Gray,
@@ -162,17 +173,18 @@ fun EqualizerUI(modifier: Modifier, viewModel: PlayerViewModel) {
                 )
             }
             Button(
-                onClick = { /*save*/ },
+                onClick = { *//*save*//* },
                 colors = ButtonDefaults.buttonColors(containerColor = primary)
             ) { Text("SAVE", color = Color.White, fontWeight = FontWeight.Bold) }
-        }
+        }*/
     }
 }
 
 // Preview helper (if using Android Studio preview)
+@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 @Preview(showBackground = true)
 fun EqualizerPreview() {
 
-    EqualizerUI(modifier = Modifier.fillMaxHeight(0.8f), viewModel = viewModel())
+    EqualizerUI(modifier = Modifier.fillMaxHeight(), viewModel = FakePlayerViewModel())
 }
