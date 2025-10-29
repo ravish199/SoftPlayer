@@ -1,9 +1,12 @@
 package com.ravish.soundeffects
 
+import android.media.audiofx.EnvironmentalReverb
 import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.util.Log
 import com.ravish.soundeffects.data.EqualizerPreset
 import com.ravish.soundeffects.data.PresetRepository
+import com.ravish.soundeffects.data.ReverbRepository
 import com.ravish.soundeffects.usecases.UpdateBandLevels
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class EqualizerEffect: AudioEffectManager {
 
     private var equalizer: Equalizer? = null
+    private var presetReverb: PresetReverb? = null
     private var audioSessionId: Int = 0
     private var bandLevelRange: Pair<Short, Short>? = null
 
@@ -24,7 +28,7 @@ class EqualizerEffect: AudioEffectManager {
      * @param sessionId The audio session ID from the media player (e.g., ExoPlayer.audioSessionId).
      * @return True if initialization was successful, false otherwise.
      */
-   private fun init(sessionId: Int): Boolean {
+    private fun init(sessionId: Int): Boolean {
         // Do not re-initialize if the session is the same and equalizer is already active
         if (sessionId == audioSessionId && equalizer != null) {
             return true
@@ -42,28 +46,27 @@ class EqualizerEffect: AudioEffectManager {
 
         return try {
             equalizer = Equalizer(0, audioSessionId).also {
-                it.enabled = true // Enable the equalizer
+        /*        it.enabled = true // Enable the equalizer
+                Log.d("EqualizerEffect", "setEnabled: equalizer")*/
             }
             Log.d("EqualizerEffect", "Equalizer initialized for session ID $audioSessionId")
+            /* environmentalReverb = EnvironmentalReverb(0, audioSessionId).also {
+                 it.enabled = true // Enable the reverb effect
+             }*/
+            presetReverb= PresetReverb(0, audioSessionId).also {
+             /*   it.enabled = true // Enable the reverb effect
+                Log.d("EqualizerEffect", "setEnabled: presetReverb")*/
+            }
             true
         } catch (e: Exception) {
-            Log.e("EqualizerEffect", "Failed to initialize Equalizer for session ID $audioSessionId", e)
-            // Reset state if initialization fails
-            equalizer = null
-            audioSessionId = 0
+            Log.e("EqualizerEffect", "Failed to initialize effects for session ID $audioSessionId", e)
+            // 1. FIX: Call release() to clean up any partially initialized effects
+            release()
             false
         }
     }
 
-    /**
-     * Enables or disables the equalizer effect.
-     *
-     * @param enabled Set to true to enable, false to disable.
-     */
-    private fun setEnabled(enabled: Boolean) {
-        Log.d("EqualizerEffect", "setEnabled: $enabled")
-        equalizer?.enabled = enabled
-    }
+
 
     /**
      * Gets the number of frequency bands supported by the device's equalizer.
@@ -114,7 +117,6 @@ class EqualizerEffect: AudioEffectManager {
     override fun enableEqualizer(enabled: Boolean) {
         Log.d("EqualizerEffect", "enableEqBands: $enabled")
         equalizer?.enabled = enabled
-
     }
 
     /**
@@ -154,15 +156,40 @@ class EqualizerEffect: AudioEffectManager {
     }
 
     override fun updateBandLevels(levels: Array<Float>) {
-            if (levels.size.toShort() == noOfBands) {
-                for (i in 0..noOfBands - 1) {
-                    equalizer?.setBandLevel(i.toShort(), levels[i].toInt().toShort())
-                }
+        if (levels.size.toShort() == noOfBands) {
+            for (i in 0..noOfBands - 1) {
+                equalizer?.setBandLevel(i.toShort(), levels[i].toInt().toShort())
             }
+        }
     }
 
     override fun getPresetData(): List<EqualizerPreset> {
         return PresetRepository.getPresets()
+    }
+
+    override fun enableReverb(enable: Boolean) {
+        presetReverb?.enabled = enable
+        Log.d("EqualizerEffect", "enableReverb: $enable $presetReverb")
+    }
+
+    override fun getReverbData(): List<String> {
+        return ReverbRepository.getReverbPresetNames
+    }
+
+    /*    override fun setReverb(presetIndex: Int) {
+                audioEffectManager?.setEnvironmentalReverb(presetIndex.toShort())
+      *//*          equalizerSettingsManager?.saveEnvironmentalReverb(presetIndex)
+            equalizerUIState.environmentalReverb.value = presetIndex*//*
+    }*/
+
+    override fun setReverb(presetIndex: Int) {
+        Log.d("EqualizerEffect", "Setting reverb preset to index: $presetIndex")
+        try {
+            presetReverb?.preset = presetIndex.toShort()
+
+        }catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -182,7 +209,9 @@ class EqualizerEffect: AudioEffectManager {
     private fun release() {
         equalizer?.release()
         equalizer = null
+        presetReverb?.release() // 5. Release the reverb object as well
+        presetReverb = null
         audioSessionId = 0
-        Log.d("EqualizerEffect", "Equalizer released.")
+        Log.d("EqualizerEffect", "Audio effects released.")
     }
 }

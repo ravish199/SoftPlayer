@@ -164,7 +164,10 @@ class FakePlayerViewModel @Inject constructor(
             openEqualizerState = MutableStateFlow(false).asStateFlow(),
             enableEqualizerState = MutableStateFlow(false).asStateFlow(),
             updatePresetBand = MutableStateFlow<List<Float>>(emptyList()).asStateFlow(),
-            presetName = MutableStateFlow("Flat").asStateFlow()
+            presetName = MutableStateFlow("Flat").asStateFlow(),
+            enableReverbState = MutableStateFlow(false).asStateFlow(),
+            currentReverb = MutableStateFlow(0).asStateFlow(),
+            updateReverb = MutableStateFlow(0).asStateFlow()
         )
     }
 }

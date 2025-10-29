@@ -2,8 +2,6 @@ package com.ravish.softplayer.ui.viewmodel
 
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
@@ -20,25 +18,25 @@ import com.ravish.player.usecases.SetRepeatMode
 import com.ravish.player.usecases.Stop
 import com.ravish.player.usecases.UpdateShuffleState
 import com.ravish.softplayer.data.EqualizerSettingsManager
+import com.ravish.softplayer.data.model.RepeatMode
+import com.ravish.softplayer.data.model.SliderUIState
+import com.ravish.softplayer.data.model.SoundEffectUseCases
+import com.ravish.softplayer.data.model.UseCases
 import com.ravish.softplayer.data.model.uistate.EqualizerUIState
 import com.ravish.softplayer.data.model.uistate.MediaUpdateUIState
 import com.ravish.softplayer.data.model.uistate.PlayBackUIState
-import com.ravish.softplayer.data.model.RepeatMode
-import com.ravish.softplayer.data.model.SliderUIState
 import com.ravish.softplayer.data.model.uistate.SongCategoryUIState
 import com.ravish.softplayer.data.model.uistate.SongInfoUIState
-import com.ravish.softplayer.data.model.SoundEffectUseCases
 import com.ravish.softplayer.data.model.uistate.TrackListUIState
-import com.ravish.softplayer.data.model.UseCases
 import com.ravish.soundeffects.AudioEffectManager
 import com.ravish.soundeffects.data.EqualizerPreset
 import com.ravish.soundeffects.usecases.EnableEqualizer
+import com.ravish.soundeffects.usecases.EnableReverb
 import com.ravish.soundeffects.usecases.InitializeEqualizer
 import com.ravish.soundeffects.usecases.SetBandLevel
 import com.ravish.soundeffects.usecases.UpdateBandLevels
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -57,7 +55,7 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     var sliderUIState: SliderUIState? = null
     lateinit var mediaUpdateUIState: MediaUpdateUIState
     lateinit var trackListUIState: TrackListUIState
-   lateinit var playBackUIState: PlayBackUIState
+    lateinit var playBackUIState: PlayBackUIState
     private var _playerBackgroundState = MutableStateFlow<Bitmap?>(null)
     private var _enableListMode = MutableStateFlow(false)
     var enableListMode = _enableListMode.asStateFlow()
@@ -65,15 +63,18 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     private var _openEqualizerState = MutableStateFlow(false)
     private var _filterTrack = MutableStateFlow("")
 
+    private var _currentReverbState = MutableStateFlow(0)
+    private var _updateReverbState = MutableStateFlow(0)
+
     private var _openTrackList = MutableStateFlow(false)
     private var _playingTrack = MutableStateFlow<SongItem?>(null)
 
 
-
-   private var _savedEqualizerBandlevels= MutableStateFlow<List<Float>?>(emptyList())
+    private var _savedEqualizerBandlevels = MutableStateFlow<List<Float>?>(emptyList())
     var savedEqualizerBandlevels = _savedEqualizerBandlevels.asStateFlow()
-   private var _enableEqualizerState = MutableStateFlow(false)
+    private var _enableEqualizerState = MutableStateFlow(false)
 
+    private var _enableReverbState = MutableStateFlow(false)
 
 
     var audioEffectManager: AudioEffectManager? = null
@@ -104,7 +105,7 @@ open class PlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     fun filterTrackList(query: String) {
-_filterTrack.value = query
+        _filterTrack.value = query
     }
 
 
@@ -151,10 +152,9 @@ _filterTrack.value = query
     }
 
 
-
     fun initializeEqualizer() {
         viewModelScope.launch {
-            if(equalizerSettingsManager?.eqEnabledFlow?.first() == false) {
+            if (equalizerSettingsManager?.eqEnabledFlow?.first() == false) {
                 soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
             }
             _savedEqualizerBandlevels.value = equalizerSettingsManager?.eqBandLevelsFlow?.first()
@@ -164,8 +164,6 @@ _filterTrack.value = query
     }
 
 
-
-
     /**
      * Call this from your UI when a slider value changes and settles.
      */
@@ -173,12 +171,12 @@ _filterTrack.value = query
         viewModelScope.launch {
             // Set the level in the audio effect
             soundEffectUseCases?.setBandLevel?.invoke(bandIndex.toShort(), level)
-           // equalizerSettingsManager?.saveBandLevels(audioEffectManager?.getBandLevels()?.toList())
+            // equalizerSettingsManager?.saveBandLevels(audioEffectManager?.getBandLevels()?.toList())
         }
     }
 
 
-     fun updatePresetBands(levels: List<Float>) {
+    fun updatePresetBands(levels: List<Float>) {
         Log.d("PlayerViewModel", "updatePresetBands: $levels")
         _updatePresetBand.value = levels
         levels.forEachIndexed { index, preset ->
@@ -188,7 +186,7 @@ _filterTrack.value = query
     }
 
 
-     fun savePreset(presetName: String) {
+    fun savePreset(presetName: String) {
         viewModelScope.launch {
             equalizerSettingsManager?.savePreset(presetName)
         }
@@ -214,13 +212,20 @@ _filterTrack.value = query
         }
     }
 
+    fun enableReverb(enable: Boolean) {
+        viewModelScope.launch {
+            _enableReverbState.value = enable
+            soundEffectUseCases?.enableReverb?.invoke(enable)
+        }
+    }
+
     fun setBandLevel(bandIndex: Int, level: Float) {
         viewModelScope.launch {
             soundEffectUseCases?.setBandLevel?.invoke(bandIndex.toShort(), level)
         }
     }
 
-    fun getPresetData():List<EqualizerPreset> {
+    fun getPresetData(): List<EqualizerPreset> {
         return audioEffectManager?.getPresetData() ?: emptyList()
     }
 
@@ -235,9 +240,11 @@ _filterTrack.value = query
     }
 
 
-    fun initMusicPlayer(musicPlayer: MusicPlayer?,
-                        audioEffectManager: AudioEffectManager?,
-                        equalizerSettingsManager: EqualizerSettingsManager) {
+    fun initMusicPlayer(
+        musicPlayer: MusicPlayer?,
+        audioEffectManager: AudioEffectManager?,
+        equalizerSettingsManager: EqualizerSettingsManager
+    ) {
         this.equalizerSettingsManager = equalizerSettingsManager
         musicPlayer?.let {
             initUseCases(it)
@@ -260,11 +267,14 @@ _filterTrack.value = query
 
     private fun initEqualizer() {
         viewModelScope.launch {
-            if(equalizerSettingsManager?.eqEnabledFlow?.first() == true) {
+            if (equalizerSettingsManager?.eqEnabledFlow?.first() == true) {
                 soundEffectUseCases?.initializeEqualizer?.invoke(sessionId = musicPlayer?.getAudioSessionId())
                 val presetName = equalizerSettingsManager?.presetNameFlow?.first()
                 with(getPresetData()) {
-                    _updatePresetBand.value = this[this.map { it.name }.indexOf(presetName)].bandLevels
+                    val index = this.map { it.name }.indexOf(presetName)
+                    if (index != -1) {
+                        _updatePresetBand.value = this[index].bandLevels
+                    }
                     updatePresetBands(
                         levels = _updatePresetBand.value
                     )
@@ -279,7 +289,10 @@ _filterTrack.value = query
             openEqualizerState = _openEqualizerState.asStateFlow(),
             enableEqualizerState = _enableEqualizerState.asStateFlow(),
             updatePresetBand = _updatePresetBand.asStateFlow(),
-            presetName = _presetName.asStateFlow()
+            presetName = _presetName.asStateFlow(),
+            enableReverbState = _enableReverbState.asStateFlow(),
+            currentReverb = _currentReverbState.asStateFlow(),
+            updateReverb = _updateReverbState.asStateFlow()
         )
     }
 
@@ -287,6 +300,7 @@ _filterTrack.value = query
         soundEffectUseCases = SoundEffectUseCases(
             initializeEqualizer = InitializeEqualizer(audioEffectManager = audioEffectManager),
             enableEqualizer = EnableEqualizer(audioEffectManager = audioEffectManager),
+            enableReverb = EnableReverb(audioEffectManager = audioEffectManager),
             updateBandLevel = UpdateBandLevels(audioEffectManager = audioEffectManager),
             setBandLevel = SetBandLevel(audioEffectManager = audioEffectManager)
         )
@@ -362,4 +376,16 @@ _filterTrack.value = query
             }
         }
     }
+
+    fun getReverbPresetNames() = audioEffectManager?.getReverbData()
+
+    fun setCurrentReverb(reverbIndex: Int) {
+        _currentReverbState.value = reverbIndex
+    }
+
+    fun updateReverb(reverbIndex: Int) {
+        _updateReverbState.value = reverbIndex
+        audioEffectManager?.setReverb(reverbIndex)
+    }
+
 }

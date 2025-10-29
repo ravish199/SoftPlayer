@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,30 +24,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ravish.softplayer.R
 import com.ravish.softplayer.ui.AddIcon
 import com.ravish.softplayer.ui.AddIcon2
 import com.ravish.softplayer.ui.FakePlayerViewModel
 import com.ravish.softplayer.ui.theme.ButtonContainerColor
+import com.ravish.softplayer.ui.theme.ButtonContainerColorSemiTransparent
 import com.ravish.softplayer.ui.theme.Typography
 import com.ravish.softplayer.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
+fun ReverbUI(modifier: Modifier, viewModel: PlayerViewModel) {
     viewModel.getPreset()
-    var presetExpanded by remember { mutableStateOf(false) }
-    val presetList = viewModel.getPresetData()
 
-    val presetName = viewModel.equalizerUIState.presetName.collectAsStateWithLifecycle().value.ifEmpty { "Flat" }
-    val isEnabled by viewModel.equalizerUIState.enableEqualizerState.collectAsStateWithLifecycle()
-    val updatePresetBand by viewModel.equalizerUIState.updatePresetBand.collectAsStateWithLifecycle()
-    LaunchedEffect(presetName) {
-        Log.d("PresetUI", "presetName1: $presetName")
-        viewModel.updatePresetBands(
-            levels = updatePresetBand
+
+
+    var reverbExpanded by remember { mutableStateOf(false) }
+    val reverbPresets = viewModel.getReverbPresetNames()
+    val currentReverb by viewModel.equalizerUIState.currentReverb.collectAsStateWithLifecycle()
+    val isEnabled by viewModel.equalizerUIState.enableReverbState.collectAsStateWithLifecycle()
+    val updateReverb by viewModel.equalizerUIState.updateReverb.collectAsStateWithLifecycle()
+    val reverbName by remember { mutableStateOf(reverbPresets?.get(currentReverb) ?: "None") }
+    LaunchedEffect(currentReverb) {
+        Log.d("Reverb", "Reverb: $currentReverb")
+        viewModel.updateReverb(
+            reverbIndex = currentReverb
         )
     }
 
@@ -54,7 +63,7 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
         Row(
             modifier = Modifier.clickable {
                 if (isEnabled) {
-                    presetExpanded = !presetExpanded
+                    reverbExpanded = !reverbExpanded
                 }
             },
             horizontalArrangement = Arrangement.Start
@@ -64,7 +73,7 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
                 .padding(start = 8.dp, end = 8.dp)
             Text(
                 modifier = textModifier.weight(1f),
-                text = "Presets",
+                text = "Reverb",
                 style = Typography.labelLarge,
                 color = if (isEnabled) Color.Black else Color.LightGray
 
@@ -72,18 +81,34 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
 
             Text(
                 modifier = textModifier.weight(2f),
-                text = presetName,
+                text = reverbPresets?.get(currentReverb) ?: "None",
                 style = Typography.labelLarge,
                 color = if (isEnabled) Color.Black else Color.LightGray
             )
 
             AddIcon2(
                 modifier = textModifier.weight(1f),
-                icon = if (presetExpanded) com.ravish.softplayer.R.drawable.icon_up_arrow else com.ravish.softplayer.R.drawable.icon_down_arrow,
+                icon = if (reverbExpanded) R.drawable.icon_up_arrow else R.drawable.icon_down_arrow,
                 onClick = {
-                    presetExpanded = !presetExpanded
+                    reverbExpanded = !reverbExpanded
                 },
                 isEnabled = isEnabled
+            )
+
+
+            Switch(
+                modifier = Modifier.weight(1f)
+                    .scale(0.6f),
+
+                checked = isEnabled,
+                onCheckedChange = {
+                    Log.d("EqualizerScreen", "onCheckedChange: $isEnabled")
+                    viewModel.enableReverb(!isEnabled)
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = ButtonContainerColor,
+                    checkedTrackColor = ButtonContainerColorSemiTransparent
+                )
             )
 
         }
@@ -91,32 +116,33 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
             modifier = Modifier
                 .fillMaxWidth(0.6f).fillMaxHeight(0.6f).align(alignment = Alignment.CenterStart),
             containerColor = Color.White,
-            expanded = presetExpanded,
+            expanded = reverbExpanded,
             tonalElevation = 10.dp,
             shadowElevation = 10.dp,
-            onDismissRequest = { presetExpanded = false }) {
-            presetList.forEach {
-                Log.d("PresetUI:", "Preset: ${it.name}")
+            onDismissRequest = { reverbExpanded = false }) {
+            reverbPresets?.forEach {
+                Log.d("PresetUI:", "Preset: ${it}")
                 DropdownMenuItem(
                     modifier = modifier.fillMaxWidth(0.6f).
                     background(color=Color.White).align(alignment = Alignment.CenterHorizontally),
-                    colors = MenuDefaults.itemColors(textColor = if(it.name == presetName)
+                    colors = MenuDefaults.itemColors(textColor = if(it == reverbPresets[currentReverb])
                         ButtonContainerColor else Color.Black),
                     text = {
                         Text(
                             modifier = modifier
                                 .fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            text = it.name
+                            textAlign = TextAlign.Center,
+                            text = it
                         )
                     },
                     onClick = {
-                        presetExpanded = false
-                        viewModel.updatePresetBands( it.bandLevels)
-                        viewModel.savePreset(it.name)
+                        reverbExpanded = false
+                        viewModel.setCurrentReverb(reverbPresets.indexOf(it))
                     })
             }
         }
+
+
     }
 
 }
@@ -125,8 +151,8 @@ fun PresetUI(modifier: Modifier, viewModel: PlayerViewModel) {
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 @Preview(showBackground = false)
-fun DrawPresetUIPreview() {
-    PresetUI(
+fun DrawReverbUIPreview() {
+    ReverbUI(
         modifier = Modifier.background(color = Color.White),
         viewModel = FakePlayerViewModel()
     )
